@@ -26,9 +26,11 @@ import org.wso2.carbon.user.core.UserCoreTestConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.DefaultRealm;
+import org.wso2.carbon.user.core.common.UserIdResolverCache;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.File;
 import java.io.InputStream;
@@ -37,6 +39,9 @@ import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Date;
 import javax.sql.DataSource;
+
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
+import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME;
 
 public class AdvancedReadOnlyJDBCRealmWithIDTest extends BaseTestCase {
 
@@ -48,7 +53,10 @@ public class AdvancedReadOnlyJDBCRealmWithIDTest extends BaseTestCase {
     }
 
     public void testStuff() throws Exception {
-
+        UserIdResolverCache.getInstance()
+                .clear(RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
+        UserIdResolverCache.getInstance()
+                .clear(RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
         DatabaseUtil.closeDatabasePoolConnection();
         initRealmStuff();
         doRoleStuff();
