@@ -17,9 +17,18 @@
 */
 package org.wso2.carbon.caching.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.caching.impl.clustering.ClusterCacheInvalidationRequestSender;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
+import java.util.Map;
+
+import javax.cache.CacheEntryInfo;
+import javax.cache.CacheInvalidationRequestSender;
+import javax.cache.event.CacheEntryEvent;
 
 /**
  * TODO: class description
@@ -90,6 +99,42 @@ public final class Util {
         return CachingConstants.DEFAULT_CACHE_EXPIRY_MINS;
     }
 
+    /**
+     * Returnn the CacheInfo Object from CacheEntry
+     * @param cacheEntryEvent CacheEntryEvent
+     * @return CacheInfo
+     */
+    public static CacheEntryInfo createCacheInfo(CacheEntryEvent cacheEntryEvent) {
+
+        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain(true);
+        int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId(true);
+        return new CacheEntryInfo(cacheEntryEvent.getSource().getCacheManager().getName(),
+                cacheEntryEvent.getSource().getName(), cacheEntryEvent.getKey(), tenantDomain, tenantId);
+    }
+
+    /**
+     * Return CacheInvalidationRequestSender Configured
+     * @return CacheInvalidationRequestSender implementation
+     */
+    public static CacheInvalidationRequestSender getCacheInvalidationRequestSender() {
+
+        ServerConfigurationService serverConfigService = DataHolder.getInstance().getServerConfigurationService();
+        Map<String, CacheInvalidationRequestSender> cacheInvalidationRequestSenders =
+                DataHolder.getInstance().getCacheInvalidationRequestSenders();
+        if (serverConfigService != null) {
+            String cacheInvalidation = serverConfigService.getFirstProperty(CachingConstants.CACHE_INVALIDATION_IMPL);
+            if (StringUtils.isNotEmpty(cacheInvalidation) &&
+                    cacheInvalidationRequestSenders.containsKey(cacheInvalidation)) {
+                return DataHolder.getInstance().getCacheInvalidationRequestSenders().get(cacheInvalidation);
+            }
+        }
+        CacheInvalidationRequestSender cacheInvalidationRequestSender =
+                cacheInvalidationRequestSenders.get(CachingConstants.DEFAULT_CACHE_INVALIDATION_CLASS);
+        if (cacheInvalidationRequestSender != null) {
+            return cacheInvalidationRequestSender;
+        }
+        return new ClusterCacheInvalidationRequestSender();
+    }
     private Util() {
     }
 }
