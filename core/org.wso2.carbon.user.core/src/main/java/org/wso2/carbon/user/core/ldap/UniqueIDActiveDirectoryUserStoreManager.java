@@ -593,7 +593,7 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
 
         if(OBJECT_GUID.equalsIgnoreCase(userIDAttribute)) {
             if (isBinaryUserAttribute(userIDAttribute)) {
-                value = transformUUIDToObjectGUID(value);
+                userID = transformUUIDToObjectGUID(userID);
             }
             userSearchFilter = userSearchFilter.replace("?", userID);
         } else {
