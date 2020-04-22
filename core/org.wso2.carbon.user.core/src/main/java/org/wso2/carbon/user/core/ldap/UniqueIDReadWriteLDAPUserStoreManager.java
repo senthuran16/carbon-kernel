@@ -936,12 +936,16 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_SEARCH_FILTER);
         String userIDAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_ID_ATTRIBUTE);
 
-        if (isBinaryUserAttribute(userIDAttribute)) {
-            userID = transformUUIDToObjectGUID(userID);
-        }
-
         userSearchFilter = userSearchFilter.replace(LDAPConstants.UID, userIDAttribute);
-        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userID));
+
+        if(OBJECT_GUID.equalsIgnoreCase(userIDAttribute)) {
+            if (isBinaryUserAttribute(userIDAttribute)) {
+                userID = transformUUIDToObjectGUID(userID);
+            }
+            userSearchFilter = userSearchFilter.replace("?", userID);
+        } else {
+            userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userID));
+        }
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -982,6 +986,10 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         processedClaimAttributes.entrySet().forEach(claimEntry -> {
             Attribute currentUpdatedAttribute = new BasicAttribute(claimEntry.getKey());
+            // skipping profile configuration attribute
+            if (claimEntry.getKey().equals(UserCoreConstants.PROFILE_CONFIGURATION)) {
+                return;
+            }
             // If updated attribute value is null, remove its values.
             if (EMPTY_ATTRIBUTE_STRING.equals(claimEntry.getValue())) {
                 currentUpdatedAttribute.clear();
