@@ -591,10 +591,8 @@ public class UniqueIDActiveDirectoryUserStoreManager extends UniqueIDReadWriteLD
 
         userSearchFilter = userSearchFilter.replace(LDAPConstants.UID, userIDAttribute);
 
-        if(OBJECT_GUID.equalsIgnoreCase(userIDAttribute)) {
-            if (isBinaryUserAttribute(userIDAttribute)) {
-                userID = transformUUIDToObjectGUID(userID);
-            }
+        if (OBJECT_GUID.equalsIgnoreCase(userIDAttribute) && isBinaryUserAttribute(userIDAttribute)) {
+            userID = transformUUIDToObjectGUID(userID);
             userSearchFilter = userSearchFilter.replace("?", userID);
         } else {
             userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userID));

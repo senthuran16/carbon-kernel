@@ -938,10 +938,8 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         userSearchFilter = userSearchFilter.replace(LDAPConstants.UID, userIDAttribute);
 
-        if(OBJECT_GUID.equalsIgnoreCase(userIDAttribute)) {
-            if (isBinaryUserAttribute(userIDAttribute)) {
-                userID = transformUUIDToObjectGUID(userID);
-            }
+        if (OBJECT_GUID.equalsIgnoreCase(userIDAttribute) && isBinaryUserAttribute(userIDAttribute)) {
+            userID = transformUUIDToObjectGUID(userID);
             userSearchFilter = userSearchFilter.replace("?", userID);
         } else {
             userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userID));
@@ -986,8 +984,8 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
 
         processedClaimAttributes.entrySet().forEach(claimEntry -> {
             Attribute currentUpdatedAttribute = new BasicAttribute(claimEntry.getKey());
-            // skipping profile configuration attribute
-            if (claimEntry.getKey().equals(UserCoreConstants.PROFILE_CONFIGURATION)) {
+            // Skipping profile configuration attribute.
+            if (UserCoreConstants.PROFILE_CONFIGURATION.equals(claimEntry.getKey())) {
                 return;
             }
             // If updated attribute value is null, remove its values.
