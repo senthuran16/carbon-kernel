@@ -37,8 +37,12 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-
-public class ConnectionWrapper extends AbstractConnection implements Connection {
+/**
+ * This Class wraps the connection object and store additional properties related to the connection object which 
+ * are not directly found or expensive to get in the connection object. 
+ *
+ */
+public class ConnectionWrapper extends AbstractConnection {
 
     Connection connection;
     
@@ -243,7 +247,6 @@ public class ConnectionWrapper extends AbstractConnection implements Connection 
 
     @Override
     public Clob createClob() throws SQLException {
-        // TODO Auto-generated method stub
         return connection.createClob();
     }
 

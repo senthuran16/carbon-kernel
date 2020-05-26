@@ -964,7 +964,7 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
      * multiple databases.
      */
     @SuppressWarnings("unused")
-    public static final class ManagedRegistryConnection extends AbstractConnection implements Connection {
+    public static final class ManagedRegistryConnection extends AbstractConnection {
 
         private static final int DEFAULT_CONNECTION_CREATION_WAIT_TIME = 100;
         // This holds the un-managed connection.
