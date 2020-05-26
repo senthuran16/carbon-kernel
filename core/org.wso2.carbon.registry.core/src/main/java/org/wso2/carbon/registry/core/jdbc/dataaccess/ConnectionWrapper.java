@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -37,26 +37,16 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-import org.wso2.carbon.registry.core.utils.RegistryUtils;
 
 public class ConnectionWrapper extends AbstractConnection implements Connection {
 
     Connection connection;
-    //String connectionId;
     
     public ConnectionWrapper(Connection conn, String connectionId) {
         this.connection = conn;
         this.connectionId = connectionId;
     }
-/*
-    @Override
-    public String getConnectionId() {
-        if (connectionId == null) {
-            connectionId = RegistryUtils.getConnectionId(this.connection);
-        }
-        return connectionId;
-    }
-*/
+    
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
         return connection.unwrap(iface);
