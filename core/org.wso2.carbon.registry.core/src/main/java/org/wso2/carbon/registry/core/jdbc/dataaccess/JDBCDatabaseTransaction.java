@@ -977,8 +977,6 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
         private static ExecutorService executor = null;
 
         private String uuid = UUIDGenerator.generateUUID();
-        
-        private String connectionId;
 
         static {
             if (statsLog.isDebugEnabled()) {
