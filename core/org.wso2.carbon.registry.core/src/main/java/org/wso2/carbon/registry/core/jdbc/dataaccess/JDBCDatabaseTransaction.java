@@ -158,11 +158,11 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
      * @param connection the connection.
      * @param id the connection id.
      */
-    public static void setConnection(Connection connection, String id) {
+    public static void setConnection(AbstractConnection connection) {
         if (tCurrent.get() != null) {
             if (connection != null) {
                 tCurrent.get().setStarted(true);
-                tCurrent.get().setConnection(new ManagedRegistryConnection(connection, id));
+                tCurrent.get().setConnection(new ManagedRegistryConnection(connection));
             } else {
                 tCurrent.get().setConnection(null);
             }
@@ -1089,8 +1089,8 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
                     }
                 };
 
-        public ManagedRegistryConnection(Connection connection, String connectionId) {
-            this.connectionId = connectionId;
+        public ManagedRegistryConnection(AbstractConnection connection) {
+            this.connectionId = connection.getConnectionId();
             // If the connection is already managed, obtain the original connection.
             if (connection instanceof ManagedRegistryConnection) {
                 this.connection = ((ManagedRegistryConnection) connection).getConnection();

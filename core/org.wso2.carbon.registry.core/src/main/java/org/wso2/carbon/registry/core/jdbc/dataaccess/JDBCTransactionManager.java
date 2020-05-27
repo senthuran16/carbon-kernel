@@ -108,7 +108,7 @@ public class JDBCTransactionManager implements TransactionManager {
             throw new RegistryException(msg, e);
         }
 
-        JDBCDatabaseTransaction.setConnection(conn, connectionId);
+        JDBCDatabaseTransaction.setConnection(conn);
     }
 
     public void rollbackTransaction() throws RegistryException {
@@ -195,7 +195,7 @@ public class JDBCTransactionManager implements TransactionManager {
 
             } finally {
                 dataAccessManager.getDatabaseTransaction().setStarted(false);
-                JDBCDatabaseTransaction.setConnection(null, null);
+                JDBCDatabaseTransaction.setConnection(null);
             }
         }
     }
