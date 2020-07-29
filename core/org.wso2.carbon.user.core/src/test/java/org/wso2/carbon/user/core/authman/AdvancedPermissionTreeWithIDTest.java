@@ -29,6 +29,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.common.UserIdResolverCache;
+import org.wso2.carbon.user.core.common.UserRolesCache;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
@@ -52,10 +53,6 @@ public class AdvancedPermissionTreeWithIDTest extends BaseTestCase {
 
     public void testStuff() throws Exception {
 
-        UserIdResolverCache.getInstance()
-                .clear(RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
-        UserIdResolverCache.getInstance()
-                .clear(RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
         DatabaseUtil.closeDatabasePoolConnection();
         initRealmStuff();
         admin = realm.getUserStoreManager();
@@ -67,6 +64,13 @@ public class AdvancedPermissionTreeWithIDTest extends BaseTestCase {
     }
 
     public void initRealmStuff() throws Exception {
+
+        UserIdResolverCache.getInstance()
+                .clear(RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
+        UserIdResolverCache.getInstance()
+                .clear(RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME, MultitenantConstants.SUPER_TENANT_ID);
+        UserRolesCache.getInstance().clearCacheByTenant(MultitenantConstants.SUPER_TENANT_ID);
+
         String dbFolder = "target/permTreetestId";
         if ((new File(dbFolder)).exists()) {
             deleteDir(new File(dbFolder));
