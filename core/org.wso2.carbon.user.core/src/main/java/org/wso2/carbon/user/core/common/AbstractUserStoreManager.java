@@ -14538,9 +14538,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             UserClaimSearchEntry userClaimSearchEntry = new UserClaimSearchEntry();
             String userID = entry.getKey();
             User user = userUniqueIDManger.getUser(userID, this);
-            String username = user.getDomainQualifiedUsername();
+            String domainQualifiedUsername = user.getDomainQualifiedUsername();
             uniqueIDUserClaimSearchEntry.setUser(user);
-            userClaimSearchEntry.setUserName(username);
+            userClaimSearchEntry.setUserName(domainQualifiedUsername);
             Map<String, String> userClaims = new HashMap<>();
 
             for (String claim : claims) {
