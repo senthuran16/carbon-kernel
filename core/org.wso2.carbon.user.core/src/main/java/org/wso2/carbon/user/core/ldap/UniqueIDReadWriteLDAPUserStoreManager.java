@@ -59,14 +59,19 @@ import javax.sql.DataSource;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -102,6 +107,7 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     private static Log logger = LogFactory.getLog(UniqueIDReadWriteLDAPUserStoreManager.class);
     private static Log log = LogFactory.getLog(UniqueIDReadWriteLDAPUserStoreManager.class);
     private static final String BULK_IMPORT_SUPPORT = "BulkImportSupported";
+    private static final String UNIQUE_ID_RW_LDAP_DATE_TIME_FORMAT = "uuuuMMddHHmmss[,S][.S]X";
 
     protected Random random = new Random();
 
@@ -2119,6 +2125,12 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME,
                 String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS),
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
+        setAdvancedProperty(UserStoreConfigConstants.immutableAttributes,
+                UserStoreConfigConstants.immutableAttributesDisplayName, " ",
+                UserStoreConfigConstants.immutableAttributesDescription);
+        setAdvancedProperty(UserStoreConfigConstants.timestampAttributes,
+                UserStoreConfigConstants.timestampAttributesDisplayName, " ",
+                UserStoreConfigConstants.timestampAttributesDescription);
     }
 
     @Override
@@ -2300,4 +2312,73 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         UNIQUE_ID_RW_LDAP_UM_ADVANCED_PROPERTIES.add(property);
     }
 
+    protected void processAttributesBeforeUpdateWithID(String userID, Map<String, String> userStorePropertyValues,
+                                                       String profileName) {
+
+        String immutableAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(StringUtils.EMPTY);
+
+        String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Retrieved user store properties for update: " + userStorePropertyValues);
+        }
+
+        if (ArrayUtils.isNotEmpty(immutableAttributes)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Skipping Unique read write only maintained default attributes: "
+                        + Arrays.toString(immutableAttributes));
+            }
+
+            Arrays.stream(immutableAttributes).forEach(userStorePropertyValues::remove);
+        }
+    }
+
+    protected void processAttributesAfterRetrievalWithID(String userID, Map<String, String> userStorePropertyValues,
+                                                         String profileName) {
+
+        String timestampAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.timestampAttributes)).orElse(StringUtils.EMPTY);
+
+        String[] timestampAttributes = StringUtils.split(timestampAttributesProperty, ",");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("UniqueID read write only timestamp attributes: " + Arrays.toString(timestampAttributes));
+        }
+
+        if (ArrayUtils.isNotEmpty(timestampAttributes)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Retrieved user store properties before type conversions: " + userStorePropertyValues);
+            }
+
+            Map<String, String> convertedTimestampAttributeValues = Arrays.stream(timestampAttributes)
+                    .filter(attribute -> userStorePropertyValues.get(attribute) != null)
+                    .collect(Collectors.toMap(Function.identity(),
+                            attribute -> convertDateFormatFromAD(userStorePropertyValues.get(attribute))));
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Converted timestamp attribute values: " + convertedTimestampAttributeValues);
+            }
+
+            userStorePropertyValues.putAll(convertedTimestampAttributeValues);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Retrieved user store properties after type conversions: " + userStorePropertyValues);
+            }
+        }
+    }
+
+    /**
+     * Convert UniqueID Read Write date format (Generalized Time) to WSO2 format.
+     *
+     * @param date Date formatted in UniqueID Read Write date format.
+     * @return Date formatted in WSO2 date format.
+     */
+    private String convertDateFormatFromAD(String date) {
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(UNIQUE_ID_RW_LDAP_DATE_TIME_FORMAT);
+        OffsetDateTime offsetDateTime = OffsetDateTime.parse(date, dateTimeFormatter);
+        Instant instant = offsetDateTime.toInstant();
+        return instant.toString();
+    }
 }
