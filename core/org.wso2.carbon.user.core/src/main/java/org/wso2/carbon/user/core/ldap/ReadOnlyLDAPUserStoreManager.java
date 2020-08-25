@@ -59,6 +59,9 @@ import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -71,6 +74,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import javax.cache.Cache;
 import javax.cache.CacheBuilder;
 import javax.cache.CacheConfiguration;
@@ -101,6 +107,7 @@ import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.T
 
 public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
+    private static Log logger = LogFactory.getLog(ReadOnlyLDAPUserStoreManager.class);
     public static final String MEMBER_UID = "memberUid";
     private static final String OBJECT_GUID = "objectGUID";
     protected static final String MEMBERSHIP_ATTRIBUTE_RANGE = "MembershipAttributeRange";
@@ -132,6 +139,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private static final String USE_ANONYMOUS_BIND = "AnonymousBind";
     protected static final int MEMBERSHIP_ATTRIBUTE_RANGE_VALUE = 0;
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
+    private static final String RO_LDAP_DATE_TIME_FORMAT = "uuuuMMddHHmmss[,S][.S]X";
 
     private String cacheExpiryTimeAttribute = ""; //Default: expire with default system wide cache expiry
     private long userDnCacheExpiryTime = 0; //Default: No cache
@@ -4312,6 +4320,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
         setAdvancedProperty(UserStoreConfigConstants.SSLCertificateValidationEnabled, "Enable SSL certificate" +
                 " validation", "true", UserStoreConfigConstants.SSLCertificateValidationEnabledDescription);
+        setAdvancedProperty(UserStoreConfigConstants.immutableAttributes,
+                UserStoreConfigConstants.immutableAttributesDisplayName, " ",
+                UserStoreConfigConstants.immutableAttributesDescription);
+        setAdvancedProperty(UserStoreConfigConstants.timestampAttributes,
+                UserStoreConfigConstants.timestampAttributesDisplayName, " ",
+                UserStoreConfigConstants.timestampAttributesDescription);
 
     }
 
@@ -4566,5 +4580,76 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             return ArrayUtils.contains(ldapBinaryAttributes, attributeName);
         }
         return false;
+    }
+
+    protected void processAttributesBeforeUpdate(String userName, Map<String, String> userStorePropertyValues,
+                                                 String profileName) {
+
+        String immutableAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(StringUtils.EMPTY);
+
+        String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Retrieved user store properties for update: " + userStorePropertyValues);
+        }
+
+        if (ArrayUtils.isNotEmpty(immutableAttributes)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Skipping Read only user store maintained default attributes: " +
+                        Arrays.toString(immutableAttributes));
+            }
+
+            Arrays.stream(immutableAttributes).map(StringUtils::trim).forEach(userStorePropertyValues::remove);
+        }
+    }
+
+    protected void processAttributesAfterRetrieval(String userName, Map<String, String> userStorePropertyValues,
+                                                   String profileName) {
+
+        String timestampAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.timestampAttributes)).orElse(StringUtils.EMPTY);
+
+        String[] timestampAttributes = StringUtils.split(timestampAttributesProperty, ",");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Read only user store  timestamp attributes: " + Arrays.toString(timestampAttributes));
+        }
+
+        if (ArrayUtils.isNotEmpty(timestampAttributes)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Retrieved user store properties before type conversions: " + userStorePropertyValues);
+            }
+
+            Map<String, String> convertedTimestampAttributeValues = Arrays.stream(timestampAttributes)
+                    .map(StringUtils::trim)
+                    .filter(attribute -> userStorePropertyValues.get(attribute) != null)
+                    .collect(Collectors.toMap(Function.identity(),
+                            attribute -> convertDateFormatFromLDAP(userStorePropertyValues.get(attribute))));
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Converted timestamp attribute values: " + convertedTimestampAttributeValues);
+            }
+
+            userStorePropertyValues.putAll(convertedTimestampAttributeValues);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Retrieved user store properties after type conversions: " + userStorePropertyValues);
+            }
+        }
+    }
+
+    /**
+     * Convert date-time format (Generalized Time) to WSO2 format.
+     *
+     * @param date Date formatted in Read Only LDAP date format.
+     * @return Date formatted in WSO2 date format.
+     */
+    private String convertDateFormatFromLDAP(String date) {
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(RO_LDAP_DATE_TIME_FORMAT);
+        OffsetDateTime offsetDateTime = OffsetDateTime.parse(date, dateTimeFormatter);
+        Instant instant = offsetDateTime.toInstant();
+        return instant.toString();
     }
 }

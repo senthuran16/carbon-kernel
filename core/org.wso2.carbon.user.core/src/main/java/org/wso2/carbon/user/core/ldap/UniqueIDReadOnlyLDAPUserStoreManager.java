@@ -48,12 +48,19 @@ import org.wso2.carbon.user.core.util.JNDIUtil;
 
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.cache.Cache;
@@ -77,6 +84,7 @@ import static org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreConstants.T
 
 public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager {
 
+    private static Log logger = LogFactory.getLog(UniqueIDReadOnlyLDAPUserStoreManager.class);
     public static final String MEMBER_UID = "memberUid";
     protected static final String OBJECT_GUID = "objectGUID";
     protected static final String MEMBERSHIP_ATTRIBUTE_RANGE = "MembershipAttributeRange";
@@ -109,6 +117,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     private static final String USE_ANONYMOUS_BIND = "AnonymousBind";
     protected static final int MEMBERSHIP_ATTRIBUTE_RANGE_VALUE = 0;
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
+    private static final String UNIQUE_ID_RO_LDAP_DATE_TIME_FORMAT = "uuuuMMddHHmmss[,S][.S]X";
 
     private String cacheExpiryTimeAttribute = ""; //Default: expire with default system wide cache expiry
     private long userDnCacheExpiryTime = 0; //Default: No cache
@@ -1926,6 +1935,12 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DISPLAY_NAME,
                 String.valueOf(UserStoreConfigConstants.DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS),
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
+        setAdvancedProperty(UserStoreConfigConstants.immutableAttributes,
+                UserStoreConfigConstants.immutableAttributesDisplayName, " ",
+                UserStoreConfigConstants.immutableAttributesDescription);
+        setAdvancedProperty(UserStoreConfigConstants.timestampAttributes,
+                UserStoreConfigConstants.timestampAttributesDisplayName, " ",
+                UserStoreConfigConstants.timestampAttributesDescription);
     }
 
     private static void setAdvancedProperty(String name, String displayName, String value, String description) {
@@ -2163,5 +2178,75 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
     public boolean isUniqueUserIdEnabled() {
 
         return true;
+    }
+
+    protected void processAttributesBeforeUpdateWithID(String userID, Map<String, String> userStorePropertyValues,
+                                                       String profileName) {
+
+        String immutableAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(StringUtils.EMPTY);
+
+        String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Retrieved user store properties for update: " + userStorePropertyValues);
+        }
+
+        if (ArrayUtils.isNotEmpty(immutableAttributes)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Skipping Unique read only maintained default attributes: "
+                        + Arrays.toString(immutableAttributes));
+            }
+
+            Arrays.stream(immutableAttributes).forEach(userStorePropertyValues::remove);
+        }
+    }
+
+    protected void processAttributesAfterRetrievalWithID(String userID, Map<String, String> userStorePropertyValues,
+                                                         String profileName) {
+
+        String timestampAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.timestampAttributes)).orElse(StringUtils.EMPTY);
+
+        String[] timestampAttributes = StringUtils.split(timestampAttributesProperty, ",");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Unique read only timestamp attributes: " + Arrays.toString(timestampAttributes));
+        }
+
+        if (ArrayUtils.isNotEmpty(timestampAttributes)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Retrieved user store properties before type conversions: " + userStorePropertyValues);
+            }
+
+            Map<String, String> convertedTimestampAttributeValues = Arrays.stream(timestampAttributes)
+                    .filter(attribute -> userStorePropertyValues.get(attribute) != null)
+                    .collect(Collectors.toMap(Function.identity(),
+                            attribute -> convertDateFormatFromLDAP(userStorePropertyValues.get(attribute))));
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Converted timestamp attribute values: " + convertedTimestampAttributeValues);
+            }
+
+            userStorePropertyValues.putAll(convertedTimestampAttributeValues);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Retrieved user store properties after type conversions: " + userStorePropertyValues);
+            }
+        }
+    }
+
+    /**
+     * Convert date format (Generalized Time) to WSO2 format.
+     *
+     * @param date Date formatted in Active Directory date format.
+     * @return Date formatted in WSO2 date format.
+     */
+    private String convertDateFormatFromLDAP(String date) {
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(UNIQUE_ID_RO_LDAP_DATE_TIME_FORMAT);
+        OffsetDateTime offsetDateTime = OffsetDateTime.parse(date, dateTimeFormatter);
+        Instant instant = offsetDateTime.toInstant();
+        return instant.toString();
     }
 }

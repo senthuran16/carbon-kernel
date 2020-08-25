@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,15 +43,22 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
@@ -93,6 +101,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     private static final String RETRY_ATTEMPTS = "RetryAttempts";
     private static final String LDAPBinaryAttributesDescription = "Configure this to define the LDAP binary attributes " +
             "seperated by a space. Ex:mpegVideo mySpecialKey";
+    private static final String RW_LDAP_DATE_TIME_FORMAT = "uuuuMMddHHmmss[,S][.S]X";
 
     /* To track whether this is the first time startup of the server. */
     protected static boolean isFirstStartup = true;
@@ -2046,6 +2055,12 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
         setAdvancedProperty(UserStoreConfigConstants.SSLCertificateValidationEnabled, "Enable SSL certificate" +
                 " validation", "true", UserStoreConfigConstants.SSLCertificateValidationEnabledDescription);
+        setAdvancedProperty(UserStoreConfigConstants.immutableAttributes,
+                UserStoreConfigConstants.immutableAttributesDisplayName, " ",
+                UserStoreConfigConstants.immutableAttributesDescription);
+        setAdvancedProperty(UserStoreConfigConstants.timestampAttributes,
+                UserStoreConfigConstants.timestampAttributesDisplayName, " ",
+                UserStoreConfigConstants.timestampAttributesDescription);
     }
 
 //	/**
@@ -2347,5 +2362,76 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         Property property = new Property(name, value, displayName + "#" + description, null);
         RW_LDAP_UM_ADVANCED_PROPERTIES.add(property);
 
+    }
+
+    protected void processAttributesBeforeUpdate(String userName, Map<String, String> userStorePropertyValues,
+                                                 String profileName) {
+
+        String immutableAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(StringUtils.EMPTY);
+
+        String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Retrieved user store properties for update: " + userStorePropertyValues);
+        }
+
+        if (ArrayUtils.isNotEmpty(immutableAttributes)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Skipping Read only user store maintained default attributes: " +
+                        Arrays.toString(immutableAttributes));
+            }
+
+            Arrays.stream(immutableAttributes).map(StringUtils::trim).forEach(userStorePropertyValues::remove);
+        }
+    }
+
+    protected void processAttributesAfterRetrieval(String userName, Map<String, String> userStorePropertyValues,
+                                                   String profileName) {
+
+        String timestampAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.timestampAttributes)).orElse(StringUtils.EMPTY);
+
+        String[] timestampAttributes = StringUtils.split(timestampAttributesProperty, ",");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Read only user store  timestamp attributes: " + Arrays.toString(timestampAttributes));
+        }
+
+        if (ArrayUtils.isNotEmpty(timestampAttributes)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Retrieved user store properties before type conversions: " + userStorePropertyValues);
+            }
+
+            Map<String, String> convertedTimestampAttributeValues = Arrays.stream(timestampAttributes)
+                    .map(StringUtils::trim)
+                    .filter(attribute -> userStorePropertyValues.get(attribute) != null)
+                    .collect(Collectors.toMap(Function.identity(),
+                            attribute -> convertDateFormatFromLDAP(userStorePropertyValues.get(attribute))));
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Converted timestamp attribute values: " + convertedTimestampAttributeValues);
+            }
+
+            userStorePropertyValues.putAll(convertedTimestampAttributeValues);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Retrieved user store properties after type conversions: " + userStorePropertyValues);
+            }
+        }
+    }
+
+    /**
+     * Convert date-time format (Generalized Time) to WSO2 format.
+     *
+     * @param date Date formatted in Read Only LDAP date format.
+     * @return Date formatted in WSO2 date format.
+     */
+    private String convertDateFormatFromLDAP(String date) {
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(RW_LDAP_DATE_TIME_FORMAT);
+        OffsetDateTime offsetDateTime = OffsetDateTime.parse(date, dateTimeFormatter);
+        Instant instant = offsetDateTime.toInstant();
+        return instant.toString();
     }
 }
