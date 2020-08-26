@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,15 +43,22 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
@@ -2046,6 +2054,12 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 UserStoreConfigConstants.CONNECTION_RETRY_DELAY_DESCRIPTION);
         setAdvancedProperty(UserStoreConfigConstants.SSLCertificateValidationEnabled, "Enable SSL certificate" +
                 " validation", "true", UserStoreConfigConstants.SSLCertificateValidationEnabledDescription);
+        setAdvancedProperty(UserStoreConfigConstants.immutableAttributes,
+                UserStoreConfigConstants.immutableAttributesDisplayName, " ",
+                UserStoreConfigConstants.immutableAttributesDescription);
+        setAdvancedProperty(UserStoreConfigConstants.timestampAttributes,
+                UserStoreConfigConstants.timestampAttributesDisplayName, " ",
+                UserStoreConfigConstants.timestampAttributesDescription);
     }
 
 //	/**
@@ -2348,4 +2362,27 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         RW_LDAP_UM_ADVANCED_PROPERTIES.add(property);
 
     }
+
+    protected void processAttributesBeforeUpdate(String userName, Map<String, String> userStorePropertyValues,
+                                                 String profileName) {
+
+        String immutableAttributesProperty = Optional.ofNullable(realmConfig
+                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(StringUtils.EMPTY);
+
+        String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Retrieved user store properties for update: " + userStorePropertyValues);
+        }
+
+        if (ArrayUtils.isNotEmpty(immutableAttributes)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Skipping Read only user store maintained default attributes: " +
+                        Arrays.toString(immutableAttributes));
+            }
+
+            Arrays.stream(immutableAttributes).map(StringUtils::trim).forEach(userStorePropertyValues::remove);
+        }
+    }
+
 }
