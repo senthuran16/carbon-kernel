@@ -2385,39 +2385,4 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         }
     }
 
-    protected void processAttributesAfterRetrieval(String userName, Map<String, String> userStorePropertyValues,
-                                                   String profileName) {
-
-        String timestampAttributesProperty = Optional.ofNullable(realmConfig
-                .getUserStoreProperty(UserStoreConfigConstants.timestampAttributes)).orElse(StringUtils.EMPTY);
-
-        String[] timestampAttributes = StringUtils.split(timestampAttributesProperty, ",");
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Read only user store  timestamp attributes: " + Arrays.toString(timestampAttributes));
-        }
-
-        if (ArrayUtils.isNotEmpty(timestampAttributes)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Retrieved user store properties before type conversions: " + userStorePropertyValues);
-            }
-
-            Map<String, String> convertedTimestampAttributeValues = Arrays.stream(timestampAttributes)
-                    .map(StringUtils::trim)
-                    .filter(attribute -> userStorePropertyValues.get(attribute) != null)
-                    .collect(Collectors.toMap(Function.identity(),
-                            attribute -> convertDateFormatFromLDAP(userStorePropertyValues.get(attribute))));
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Converted timestamp attribute values: " + convertedTimestampAttributeValues);
-            }
-
-            userStorePropertyValues.putAll(convertedTimestampAttributeValues);
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Retrieved user store properties after type conversions: " + userStorePropertyValues);
-            }
-        }
-    }
-
 }

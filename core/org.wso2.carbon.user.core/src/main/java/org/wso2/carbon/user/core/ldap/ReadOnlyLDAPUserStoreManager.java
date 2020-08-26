@@ -117,17 +117,20 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private static Log log = LogFactory.getLog(ReadOnlyLDAPUserStoreManager.class);
     protected static final int MAX_USER_CACHE = 200;
 
-    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION =
+            "This is the separator for multiple claim values";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     private static final ArrayList<Property> RO_LDAP_UM_ADVANCED_PROPERTIES = new ArrayList<Property>();
-    private static final String PROPERTY_REFERRAL_IGNORE ="ignore";
+    private static final String PROPERTY_REFERRAL_IGNORE = "ignore";
     private static final String LDAPConnectionTimeout = "LDAPConnectionTimeout";
     private static final String LDAPConnectionTimeoutDescription = "LDAP Connection Timeout";
     private static final String readTimeout = "ReadTimeout";
-    private static final String readTimeoutDescription = "Configure this to define the read timeout for LDAP operations";
+    private static final String readTimeoutDescription =
+            "Configure this to define the read timeout for LDAP operations";
     private static final String RETRY_ATTEMPTS = "RetryAttempts";
-    private static final String LDAPBinaryAttributesDescription = "Configure this to define the LDAP binary attributes " +
-            "seperated by a space. Ex:mpegVideo mySpecialKey";
+    private static final String LDAPBinaryAttributesDescription =
+            "Configure this to define the LDAP binary attributes " +
+                    "seperated by a space. Ex:mpegVideo mySpecialKey";
     protected static final String USER_CACHE_EXPIRY_TIME_ATTRIBUTE_NAME = "User Cache Expiry milliseconds";
     protected static final String USER_DN_CACHE_ENABLED_ATTRIBUTE_NAME = "Enable User DN Cache";
     protected static final String USER_CACHE_EXPIRY_TIME_ATTRIBUTE_DESCRIPTION =
@@ -139,7 +142,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private static final String USE_ANONYMOUS_BIND = "AnonymousBind";
     protected static final int MEMBERSHIP_ATTRIBUTE_RANGE_VALUE = 0;
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
-    private static final String LDAP_DATE_TIME_FORMAT = "uuuuMMddHHmmss[,S][.S]X";
+    private static final String GENARALIZE_DATE_TIME_FORMAT = "uuuuMMddHHmmss[,S][.S]X";
 
     private String cacheExpiryTimeAttribute = ""; //Default: expire with default system wide cache expiry
     private long userDnCacheExpiryTime = 0; //Default: No cache
@@ -4625,7 +4628,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      */
     protected String convertDateFormatFromLDAP(String date) {
 
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(LDAP_DATE_TIME_FORMAT);
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(GENARALIZE_DATE_TIME_FORMAT);
         OffsetDateTime offsetDateTime = OffsetDateTime.parse(date, dateTimeFormatter);
         Instant instant = offsetDateTime.toInstant();
         return instant.toString();

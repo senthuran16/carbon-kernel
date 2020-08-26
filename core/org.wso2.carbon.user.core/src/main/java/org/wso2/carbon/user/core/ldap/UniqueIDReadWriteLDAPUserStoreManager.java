@@ -2333,38 +2333,4 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         }
     }
 
-    protected void processAttributesAfterRetrievalWithID(String userID, Map<String, String> userStorePropertyValues,
-                                                         String profileName) {
-
-        String timestampAttributesProperty = Optional.ofNullable(realmConfig
-                .getUserStoreProperty(UserStoreConfigConstants.timestampAttributes)).orElse(StringUtils.EMPTY);
-
-        String[] timestampAttributes = StringUtils.split(timestampAttributesProperty, ",");
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Unique read only timestamp attributes: " + Arrays.toString(timestampAttributes));
-        }
-
-        if (ArrayUtils.isNotEmpty(timestampAttributes)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Retrieved user store properties before type conversions: " + userStorePropertyValues);
-            }
-
-            Map<String, String> convertedTimestampAttributeValues = Arrays.stream(timestampAttributes)
-                    .filter(attribute -> userStorePropertyValues.get(attribute) != null)
-                    .collect(Collectors.toMap(Function.identity(),
-                            attribute -> convertDateFormatFromLDAP(userStorePropertyValues.get(attribute))));
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Converted timestamp attribute values: " + convertedTimestampAttributeValues);
-            }
-
-            userStorePropertyValues.putAll(convertedTimestampAttributeValues);
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Retrieved user store properties after type conversions: " + userStorePropertyValues);
-            }
-        }
-    }
-
 }
