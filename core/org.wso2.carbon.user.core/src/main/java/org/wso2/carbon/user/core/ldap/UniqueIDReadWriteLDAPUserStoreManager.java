@@ -101,7 +101,6 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
     private static final String RETRY_ATTEMPTS = "RetryAttempts";
     private static final String LDAPBinaryAttributesDescription =
             "Configure this to define the LDAP binary attributes " + "seperated by a space. Ex:mpegVideo mySpecialKey";
-    private static final String UNIQUE_ID_RW_LDAP_DATE_TIME_FORMAT = "uuuuMMddHHmmss[,S][.S]X";
 
     /* To track whether this is the first time startup of the server. */
     protected static boolean isFirstStartup = true;
@@ -2368,17 +2367,4 @@ public class UniqueIDReadWriteLDAPUserStoreManager extends UniqueIDReadOnlyLDAPU
         }
     }
 
-    /**
-     * Convert date format (Generalized Time) to WSO2 format.
-     *
-     * @param date Date formatted in Active Directory date format.
-     * @return Date formatted in WSO2 date format.
-     */
-    private String convertDateFormatFromLDAP(String date) {
-
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(UNIQUE_ID_RW_LDAP_DATE_TIME_FORMAT);
-        OffsetDateTime offsetDateTime = OffsetDateTime.parse(date, dateTimeFormatter);
-        Instant instant = offsetDateTime.toInstant();
-        return instant.toString();
-    }
 }

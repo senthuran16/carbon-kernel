@@ -139,7 +139,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private static final String USE_ANONYMOUS_BIND = "AnonymousBind";
     protected static final int MEMBERSHIP_ATTRIBUTE_RANGE_VALUE = 0;
     private static final int MAX_ITEM_LIMIT_UNLIMITED = -1;
-    private static final String RO_LDAP_DATE_TIME_FORMAT = "uuuuMMddHHmmss[,S][.S]X";
+    private static final String LDAP_DATE_TIME_FORMAT = "uuuuMMddHHmmss[,S][.S]X";
 
     private String cacheExpiryTimeAttribute = ""; //Default: expire with default system wide cache expiry
     private long userDnCacheExpiryTime = 0; //Default: No cache
@@ -4582,28 +4582,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return false;
     }
 
-    protected void processAttributesBeforeUpdate(String userName, Map<String, String> userStorePropertyValues,
-                                                 String profileName) {
-
-        String immutableAttributesProperty = Optional.ofNullable(realmConfig
-                .getUserStoreProperty(UserStoreConfigConstants.immutableAttributes)).orElse(StringUtils.EMPTY);
-
-        String[] immutableAttributes = StringUtils.split(immutableAttributesProperty, ",");
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Retrieved user store properties for update: " + userStorePropertyValues);
-        }
-
-        if (ArrayUtils.isNotEmpty(immutableAttributes)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Skipping Read only user store maintained default attributes: " +
-                        Arrays.toString(immutableAttributes));
-            }
-
-            Arrays.stream(immutableAttributes).map(StringUtils::trim).forEach(userStorePropertyValues::remove);
-        }
-    }
-
     protected void processAttributesAfterRetrieval(String userName, Map<String, String> userStorePropertyValues,
                                                    String profileName) {
 
@@ -4642,12 +4620,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     /**
      * Convert date-time format (Generalized Time) to WSO2 format.
      *
-     * @param date Date formatted in Read Only LDAP date format.
+     * @param date Date formatted in LDAP date format.
      * @return Date formatted in WSO2 date format.
      */
-    private String convertDateFormatFromLDAP(String date) {
+    protected String convertDateFormatFromLDAP(String date) {
 
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(RO_LDAP_DATE_TIME_FORMAT);
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(LDAP_DATE_TIME_FORMAT);
         OffsetDateTime offsetDateTime = OffsetDateTime.parse(date, dateTimeFormatter);
         Instant instant = offsetDateTime.toInstant();
         return instant.toString();
