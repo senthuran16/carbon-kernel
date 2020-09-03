@@ -30,7 +30,6 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.common.UserIdResolverCache;
 import org.wso2.carbon.user.core.common.UserRolesCache;
-import org.wso2.carbon.user.core.common.UserIdResolverCache;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
@@ -38,15 +37,11 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.File;
 import java.io.InputStream;
-import java.lang.management.MemoryUsage;
 
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_UNIQUE_USER_ID_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME;
 import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_UNIQUE_ID_FROM_USER_NAME_CACHE_NAME;
-
-import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_ID_FROM_USER_NAME_CACHE_NAME;
-import static org.wso2.carbon.user.core.UserStoreConfigConstants.RESOLVE_USER_NAME_FROM_USER_ID_CACHE_NAME;
 
 public class AdvancedPermissionTreeWithIDTest extends BaseTestCase {
     private UserRealm realm = null;
