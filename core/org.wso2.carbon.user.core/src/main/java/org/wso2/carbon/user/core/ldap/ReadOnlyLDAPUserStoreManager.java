@@ -75,6 +75,8 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.cache.Cache;
@@ -110,6 +112,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private static Log logger = LogFactory.getLog(ReadOnlyLDAPUserStoreManager.class);
     public static final String MEMBER_UID = "memberUid";
     private static final String OBJECT_GUID = "objectGUID";
+    private static final String OBJECT_GUID_REGEX =
+            "/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i";
+    private static Pattern OBJECT_GUID_PATTERN;
     protected static final String MEMBERSHIP_ATTRIBUTE_RANGE = "MembershipAttributeRange";
     protected static final String MEMBERSHIP_ATTRIBUTE_RANGE_DISPLAY_NAME = "Membership Attribute Range";
     private static final String USER_CACHE_NAME_PREFIX = CachingConstants.LOCAL_CACHE_PREFIX + "UserCache-";
@@ -173,6 +178,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
     static {
         setAdvancedProperties();
+        OBJECT_GUID_PATTERN = Pattern.compile(OBJECT_GUID_REGEX);
     }
 
     public ReadOnlyLDAPUserStoreManager() {
@@ -2791,7 +2797,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             String convertedValue;
             if (StringUtils.equals(value, "*")) {
                 convertedValue = value;
-            } else if (transformObjectGuidToUuid) {
+            } else if (transformObjectGuidToUuid && isGUIDValue(value)) {
                 convertedValue = transformUUIDToObjectGUID(value);
             } else {
                 byte[] bytes = Base64.decodeBase64(value.getBytes());
@@ -4735,6 +4741,18 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             return ArrayUtils.contains(ldapBinaryAttributes, attributeName);
         }
         return false;
+    }
+
+    /**
+     * Method for checking whether the claim value is in ObjectGUID format.
+     *
+     * @param value Claim value.
+     * @return Boolean stating whether claim value is in ObjectGUID format.
+     */
+    protected boolean isGUIDValue(String value) {
+
+        Matcher matcher = OBJECT_GUID_PATTERN.matcher(value);
+        return matcher.find();
     }
 
     protected void processAttributesAfterRetrieval(String userName, Map<String, String> userStorePropertyValues,
