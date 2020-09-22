@@ -113,7 +113,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     public static final String MEMBER_UID = "memberUid";
     private static final String OBJECT_GUID = "objectGUID";
     private static final String OBJECT_GUID_REGEX =
-            "/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i";
+            "^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$";
     private static Pattern OBJECT_GUID_PATTERN;
     protected static final String MEMBERSHIP_ATTRIBUTE_RANGE = "MembershipAttributeRange";
     protected static final String MEMBERSHIP_ATTRIBUTE_RANGE_DISPLAY_NAME = "Membership Attribute Range";
@@ -178,7 +178,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
     static {
         setAdvancedProperties();
-        OBJECT_GUID_PATTERN = Pattern.compile(OBJECT_GUID_REGEX);
+        OBJECT_GUID_PATTERN = Pattern.compile(OBJECT_GUID_REGEX, Pattern.CASE_INSENSITIVE);
     }
 
     public ReadOnlyLDAPUserStoreManager() {
@@ -2787,7 +2787,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         String userPropertyName =
                 realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
 
-        if (OBJECT_GUID.equalsIgnoreCase(property)) {
+        if (OBJECT_GUID.equalsIgnoreCase(property) && (isGUIDValue(value) || StringUtils.equals(value, "*"))) {
             String transformObjectGuidToUuidProperty =
                     realmConfig.getUserStoreProperty(TRANSFORM_OBJECTGUID_TO_UUID);
 
@@ -2797,7 +2797,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             String convertedValue;
             if (StringUtils.equals(value, "*")) {
                 convertedValue = value;
-            } else if (transformObjectGuidToUuid && isGUIDValue(value)) {
+            } else if (transformObjectGuidToUuid) {
                 convertedValue = transformUUIDToObjectGUID(value);
             } else {
                 byte[] bytes = Base64.decodeBase64(value.getBytes());
@@ -4751,8 +4751,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      */
     protected boolean isGUIDValue(String value) {
 
-        Matcher matcher = OBJECT_GUID_PATTERN.matcher(value);
-        return matcher.find();
+        if (StringUtils.isNotBlank(value)) {
+            Matcher matcher = OBJECT_GUID_PATTERN.matcher(value);
+            return matcher.find();
+        }
+        return false;
     }
 
     protected void processAttributesAfterRetrieval(String userName, Map<String, String> userStorePropertyValues,
