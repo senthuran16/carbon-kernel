@@ -17,8 +17,6 @@
 */
 package org.wso2.carbon.ui.util;
 
-import java.util.regex.Pattern;
-
 /*
  * This class validates special characters to avoid any XSS vulnerabilities.
  */
