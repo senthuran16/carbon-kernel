@@ -36,6 +36,8 @@ public class CharacterEncoder {
         if(text.contains("\"")){
             text = text.replace("\"", "&quot;");
         }
+        text = text.replaceAll("\\W", "");
+
         return text;
     }
 }
