@@ -231,7 +231,7 @@ public class JDBCRealmSecondaryUserStoreTest extends BaseTestCase {
         assertNull(obtained.get(ClaimTestUtil.CLAIM_URI2));
 
         // With the username and userID claim in default profile.
-        assertEquals(2, admin.getUserClaimValues("SECONDARYJDBC/user2", null).length);
+        assertEquals(3, admin.getUserClaimValues("SECONDARYJDBC/user2", null).length);
         assertEquals(2, admin.getUserClaimValues("SECONDARYJDBC/user2", ClaimTestUtil.HOME_PROFILE_NAME).length);
     }
 
