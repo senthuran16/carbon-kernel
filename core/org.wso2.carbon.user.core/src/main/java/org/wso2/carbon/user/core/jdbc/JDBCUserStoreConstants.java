@@ -292,7 +292,7 @@ public class JDBCUserStoreConstants {
                 JDBCRealmConstants.GET_USERS_FOR_PROP_WITH_ID_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.GET_USERS_FOR_PROP_WITH_ID_CASE_INSENSITIVE,
                 "Get User List For Property With ID SQL With Case Insensitive Username",
-                JDBCCaseInsensitiveConstants.GET_USERS_FOR_PROP_WITH_ID_CASE_INSENSITIVE, "");
+                JDBCCaseInsensitiveConstants.GET_USERS_FOR_PROP_WITH_ID_SQL_CASE_INSENSITIVE, "");
         setAdvancedProperty(JDBCRealmConstants.GET_PROFILE_NAMES, "Get Profile Names SQL", JDBCRealmConstants.GET_PROFILE_NAMES_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.GET_PROFILE_NAMES_FOR_USER, "Get User Profile Names SQL", JDBCRealmConstants.GET_PROFILE_NAMES_FOR_USER_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.GET_PROFILE_NAMES_FOR_USER_WITH_ID, "Get User Profile Names SQL With ID",
