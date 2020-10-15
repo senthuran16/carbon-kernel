@@ -1843,6 +1843,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         } catch (SQLException e) {
             DatabaseUtil.rollBack(dbConnection);
             String msg = "Error occurred while deleting user : " + userName;
+            log.error(dbConnection);
             throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
