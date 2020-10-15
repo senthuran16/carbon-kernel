@@ -1838,10 +1838,17 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
-            String msg = "Error occurred while deleting user : " + userName;
-            if (log.isDebugEnabled()) {
-                log.debug(msg, e);
+            try {
+                if (dbConnection != null) {
+                    dbConnection.rollback();
+                }
+            } catch (SQLException e1) {
+                String errorMessage = "Error rollbacking delete user operation for user : " + userName;
+                log.error(errorMessage, e1);
+                throw new UserStoreException(errorMessage, e1);
             }
+            String msg = "Error occurred while deleting user : " + userName;
+            log.error(msg, e);
             throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
@@ -2549,10 +2556,17 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 dbConnection.commit();
             }
         } catch (SQLException e) {
-            String msg = "Error occurred while updating string values to database.";
-            if (log.isDebugEnabled()) {
-                log.debug(msg, e);
+            try {
+                if (dbConnection != null) {
+                    dbConnection.rollback();
+                }
+            } catch (SQLException e1) {
+                String errorMessage = "Failed to rollback updating string values to database.";
+                log.error(errorMessage, e1);
+                throw new UserStoreException(errorMessage, e1);
             }
+            String msg = "Error occurred while updating string values to database.";
+            log.error(msg, e);
             if (e instanceof SQLIntegrityConstraintViolationException) {
                 // Duplicate entry
                 throw new UserStoreException(msg, ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode(), e);
