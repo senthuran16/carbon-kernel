@@ -1601,6 +1601,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Error occurred while adding role : " + roleName;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
@@ -1652,6 +1653,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Error occurred while updating role name : " + roleName;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
@@ -1775,6 +1777,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             //this.userRealm.getAuthorizationManager().clearRoleAuthorization(roleName);
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Error occurred while deleting role : " + roleName;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
@@ -1838,10 +1841,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Error occurred while deleting user : " + userName;
-            if (log.isDebugEnabled()) {
-                log.debug(msg, e);
-            }
+            log.error(dbConnection);
             throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
@@ -1946,6 +1948,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Database error occurred while updating user list of role : " + roleName;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
@@ -2159,6 +2162,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Database error occurred while updating role list of user : " + userName;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
@@ -2203,6 +2207,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg =
                     "Database error occurred while saving user claim value for user : " + userName + " & attribute : " +
                             attributeName + " value : " + value;
@@ -2249,6 +2254,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     receivedProperties, alreadyAvailableProperties), profileName);
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Database error occurred while setting user claim values for user : " + userName;
 
             if (log.isDebugEnabled()) {
@@ -2317,6 +2323,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             this.deleteProperty(dbConnection, userName, property, profileName);
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Database error occurred while deleting user claim value for user : " + userName +
                          " & claim URI : " + claimURI;
             if (log.isDebugEnabled()) {
@@ -2353,6 +2360,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Database error occurred while deleting user claim values for user : " + userName;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
@@ -2549,10 +2557,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 dbConnection.commit();
             }
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Error occurred while updating string values to database.";
-            if (log.isDebugEnabled()) {
-                log.debug(msg, e);
-            }
+            log.error(msg, e);
             if (e instanceof SQLIntegrityConstraintViolationException) {
                 // Duplicate entry
                 throw new UserStoreException(msg, ERROR_CODE_DUPLICATE_WHILE_WRITING_TO_DATABASE.getCode(), e);
@@ -2840,6 +2847,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Database error occurred while saving remember me token for tenant : " + tenantId;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
@@ -3265,6 +3273,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Database error occurred while adding shared role : " + roleName;
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
@@ -3388,6 +3397,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 dbConnection.commit();
             }
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Error occurred while updating string values to database.";
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
@@ -3478,6 +3488,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 dbConnection.commit();
             }
         } catch (SQLException e) {
+            DatabaseUtil.rollBack(dbConnection);
             String msg = "Error occurred while updating string values to database.";
             if (log.isDebugEnabled()) {
                 log.debug(msg, e);
