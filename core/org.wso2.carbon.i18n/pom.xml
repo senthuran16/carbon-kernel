@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.6.0.1-SNAPSHOT</version>
+        <version>4.6.0.1</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -40,7 +40,7 @@
                         <Export-Package>org.wso2.carbon.i18n.*</Export-Package>
                         <!-- Important : Do not remove the blank import it will add an import
                         statement to the org.wso2.carbon.i18n.* which is wrong -->
-                        <Import-Package/>
+                        <Import-Package />
                         <Bundle-ClassPath>.</Bundle-ClassPath>
                         <Carbon-Component>UIBundle</Carbon-Component>
                     </instructions>
