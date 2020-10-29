@@ -183,7 +183,8 @@ public class UserUniqueIDDomainResolver {
     private void persistDomainAgainstUserId(String userId, String userDomain, int tenantId) throws UserStoreException {
 
         try (Connection dbConnection = getDBConnection()) {
-
+            
+            dbConnection.setAutoCommit(false);
             // Check whether the domain already exists in the DB against this user id. If so, we have to
             // update the record.
             // Do it in the same connection.
@@ -209,6 +210,7 @@ public class UserUniqueIDDomainResolver {
                     preparedStatement.setInt(3, tenantId);
                     preparedStatement.setInt(4, tenantId);
                     preparedStatement.execute();
+                    dbConnection.commit();
                 }
             }
         } catch (SQLException ex) {
