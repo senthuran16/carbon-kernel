@@ -146,4 +146,8 @@ public class UserStoreConfigConstants {
             + " inorder to establish the connection after couple of failure attempts.";
     public static final int DEFAULT_CONNECTION_RETRY_DELAY_IN_MILLISECONDS = 120000;
     public static final String OBJECT_GUID = "objectGuid";
+
+    // Property for specify case sensitivity for LDAP.
+    public static final String CASE_SENSITIVE_USERNAME = "CaseInsensitiveUsername";
+    public static final String CASE_SENSITIVE_USERNAME_DESCRIPTION = "Whether the username is case sensitive or not";
 }
