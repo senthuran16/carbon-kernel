@@ -82,8 +82,8 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(DisplayNameAttribute, "Display name attribute", "", DisplayNameAttributeDescription);
 
         setProperty(UserStoreConfigConstants.disabled, "Disabled", "false", UserStoreConfigConstants.disabledDescription);
-        setProperty(UserStoreConfigConstants.CASE_SENSITIVE_USERNAME, "Case Insensitive Username", "true",
-                UserStoreConfigConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);
+        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "true",
+                UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION);
 
         Property readLDAPGroups = new Property(UserStoreConfigConstants.readGroups, "true", "Read Groups#" + UserStoreConfigConstants.readLDAPGroupsDescription, null);
         //Mandatory only if readGroups is enabled
