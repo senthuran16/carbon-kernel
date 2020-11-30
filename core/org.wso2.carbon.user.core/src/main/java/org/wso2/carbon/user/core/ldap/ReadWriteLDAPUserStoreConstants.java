@@ -113,6 +113,8 @@ public class ReadWriteLDAPUserStoreConstants {
         setProperty("UniqueID", "", "", "");
         setProperty(UserStoreConfigConstants.lDAPInitialContextFactory, "LDAP Initial Context Factory",
                 "com.sun.jndi.ldap.LdapCtxFactory", UserStoreConfigConstants.lDAPInitialContextFactoryDescription);
+        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "true",
+                UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION);
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value,
