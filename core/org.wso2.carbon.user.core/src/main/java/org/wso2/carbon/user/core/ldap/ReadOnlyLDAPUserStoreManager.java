@@ -62,6 +62,7 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -1283,25 +1284,21 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
          */
         // env.put(CarbonConstants.REQUEST_BASE_CONTEXT, "true");
 
-		/*
-		 * String rawConnectionURL =
-		 * realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_URL);
-		 * String portInfo = rawConnectionURL.split(":")[2];
-		 * 
-		 * String connectionURL = null;
-		 * String port = null;
-		 * // if the port contains a template string that refers to carbon.xml
-		 * if ((portInfo.contains("${")) && (portInfo.contains("}"))) {
-		 * port =
-		 * Integer.toString(CarbonUtils.getPortFromServerConfig(portInfo));
-		 * connectionURL = rawConnectionURL.replace(portInfo, port);
-		 * }
-		 * if (port == null) { // if not enabled, read LDAP url from
-		 * user.mgt.xml
-		 * connectionURL =
-		 * realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_URL);
-		 * }
-		 */
+        /*
+         * String rawConnectionURL = realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_URL);
+         * String portInfo = rawConnectionURL.split(":")[2];
+         *
+         * String connectionURL = null;
+         * String port = null;
+         * // if the port contains a template string that refers to carbon.xml
+         * if ((portInfo.contains("${")) && (portInfo.contains("}"))) {
+         *     port = Integer.toString(CarbonUtils.getPortFromServerConfig(portInfo));
+         *     connectionURL = rawConnectionURL.replace(portInfo, port);
+         * }
+         * if (port == null) { // if not enabled, read LDAP url from user.mgt.xml
+         *     connectionURL = realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_URL);
+         * }
+         */
 		/*
 		 * env.put(Context.PROVIDER_URL, connectionURL);
 		 * env.put(Context.SECURITY_AUTHENTICATION, "simple");
@@ -4802,8 +4799,15 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     protected String convertDateFormatFromLDAP(String date) {
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(GENARALIZE_DATE_TIME_FORMAT);
-        OffsetDateTime offsetDateTime = OffsetDateTime.parse(date, dateTimeFormatter);
-        Instant instant = offsetDateTime.toInstant();
-        return instant.toString();
+        try {
+            OffsetDateTime offsetDateTime = OffsetDateTime.parse(date, dateTimeFormatter);
+            Instant instant = offsetDateTime.toInstant();
+            return instant.toString();
+        } catch (DateTimeParseException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Error occurred while parsing the date : " + date, e);
+            }
+            return date;
+        }
     }
 }
