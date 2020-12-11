@@ -45,6 +45,7 @@ import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.JNDIUtil;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
@@ -797,6 +798,9 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
                         if (userID != null) {
                             id = resolveLdapAttributeValue(userID.get());
                         }
+
+                        // Get the name in the format of domainName/userName|domainName/displayName.
+                        name = UserCoreUtil.getCombinedName(domain, name, display);
 
                         User user = getUser(id, name);
                         user.setDisplayName(display);
