@@ -43,6 +43,7 @@ import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.TransportOutDescription;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.axis2.transport.TransportListener;
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -50,6 +51,8 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.core.multitenancy.TenantAxisConfigurator;
+import org.wso2.carbon.core.multitenancy.eager.TenantEagerLoader;
+import org.wso2.carbon.core.multitenancy.eager.TenantLoadingConfig;
 import org.wso2.carbon.core.multitenancy.transports.DummyTransportListener;
 import org.wso2.carbon.core.multitenancy.transports.TenantTransportInDescription;
 import org.wso2.carbon.core.multitenancy.transports.TenantTransportSender;
@@ -440,8 +443,14 @@ public final class TenantAxisUtils {
             String tenantDomain = entry.getKey();
             synchronized (tenantDomain.intern()) {
                 ConfigurationContext tenantCfgCtx = entry.getValue();
+                // Get the Eager Loading tenant property from the tenant configuration context
+                Object eagerLoadingTenant = tenantCfgCtx.getProperty("EAGER_LOADING_TENANT");
+                if (eagerLoadingTenant != null && (boolean) eagerLoadingTenant) {
+                    continue;
+                }
                 Long lastAccessed =
                         (Long) tenantCfgCtx.getProperty(MultitenantConstants.LAST_ACCESSED);
+                // If the tenant is an eager loading tenant, skip the tenant clean up.
                 if (System.currentTimeMillis() - lastAccessed >= tenantIdleTimeMillis) {
                     // Get the write lock.
                     Lock tenantWriteLock = tenantReadWriteLocks.get(tenantDomain).writeLock();
