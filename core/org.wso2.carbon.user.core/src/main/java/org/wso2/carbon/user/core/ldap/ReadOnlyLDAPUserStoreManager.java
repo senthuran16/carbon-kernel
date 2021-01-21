@@ -682,6 +682,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
             while (answer != null && answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.next();
+                if (userDN == null && sr != null) {
+                    userDN = sr.getNameInNamespace();
+                    if (userDN != null) {
+                        putToUserCache(userName, new LdapName(userDN));
+                    }
+                }
                 Attributes attributes = sr.getAttributes();
                 if (attributes == null) {
                     continue;
@@ -2967,7 +2973,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * @param offset
      * @return
      */
-    private int getOffset(int offset) {
+    protected int getOffset(int offset) {
 
         if (offset <= 0) {
             offset = 0;
@@ -2984,7 +2990,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * @param isMemberShipPropertyFound
      * @return
      */
-    private int getLimit(int limit, boolean isMemberShipPropertyFound) {
+    protected int getLimit(int limit, boolean isMemberShipPropertyFound) {
 
         int givenMax;
 
@@ -3010,7 +3016,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * @param controls
      * @return
      */
-    private static byte[] parseControls(Control[] controls) {
+    protected static byte[] parseControls(Control[] controls) {
 
         byte[] cookie = null;
         // Handle the paged results control response
@@ -3031,7 +3037,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * @param condition
      * @return
      */
-    private List<ExpressionCondition> getExpressionConditions(Condition condition) {
+    protected List<ExpressionCondition> getExpressionConditions(Condition condition) {
 
         List<ExpressionCondition> expressionConditions = new ArrayList<>();
         getExpressionConditionsAsList(condition, expressionConditions);
@@ -3160,7 +3166,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * @param expressionConditions Expression conditions
      * @return True if the operation is a single attribute filter.
      */
-    private boolean isSingleAttributeFilterOperation(List<ExpressionCondition> expressionConditions) {
+    protected boolean isSingleAttributeFilterOperation(List<ExpressionCondition> expressionConditions) {
 
         /*
         The size of the expression condition is used to verify the type of filter operation since the up
