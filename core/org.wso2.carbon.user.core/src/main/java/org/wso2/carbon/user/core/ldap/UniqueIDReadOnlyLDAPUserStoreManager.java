@@ -300,8 +300,7 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
         if (preferredUserNameProperty.equals(userPropertyName)) {
             users = new String[]{preferredUserNameValue};
         } else {
-            users = super
-                    .getUserListFromProperties(preferredUserNameProperty, preferredUserNameValue, profileName);
+            users = super.getUserListFromProperties(preferredUserNameProperty, preferredUserNameValue, profileName);
         }
 
         if (ArrayUtils.isEmpty(users)) {

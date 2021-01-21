@@ -7062,8 +7062,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
      * @param domainName                User store manager domain.
      * @return True if a username is found, false otherwise.
      * @throws UserStoreException       Thrown by the underlying UserStoreManager.
-         */
-    private Boolean isUserExistsWithGivenDomain(String userId, AbstractUserStoreManager abstractUserStoreManager,
+     */
+    private boolean isUserExistsWithGivenDomain(String userId, AbstractUserStoreManager abstractUserStoreManager,
                                                String domainName) throws UserStoreException {
 
         String userName = getFromUserNameCache(userId);
