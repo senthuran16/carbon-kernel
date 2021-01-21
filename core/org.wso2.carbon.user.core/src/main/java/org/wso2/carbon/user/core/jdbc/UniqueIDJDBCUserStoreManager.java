@@ -3257,6 +3257,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                         String userID = rs.getString(1);
                         String userName = rs.getString(2);
                         User user = getUser(userID, userName);
+                        user.setUserStoreDomain(getMyDomainName());
                         tempUserList.add(user);
                     }
 
@@ -3276,6 +3277,7 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                     String userID = rs.getString(1);
                     String userName = rs.getString(2);
                     User user = getUser(userID, userName);
+                    user.setUserStoreDomain(getMyDomainName());
                     list.add(user);
                 }
             }
