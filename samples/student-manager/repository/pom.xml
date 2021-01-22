@@ -2,7 +2,7 @@
     <parent>
         <artifactId>student-manager</artifactId>
         <groupId>org.wso2.carbon</groupId>
-        <version>4.6.0.13-SNAPSHOT</version>
+        <version>4.6.0.25-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
