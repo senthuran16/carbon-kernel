@@ -765,18 +765,10 @@ public class HybridRoleManager {
 
         // ########### Domain-less Roles and Domain-aware Users from here onwards #############
 
-        if (isCaseSensitiveUsername()) {
-            if (this.isExistingRole(newRoleName)) {
-                throw new UserStoreException(
-                        "Role name: " + newRoleName + " is in the system. Please pick another role name.");
-            }
-        } else {
-            if (!roleName.equalsIgnoreCase(newRoleName)) {
-                if (this.isExistingRole(newRoleName)) {
-                    throw new UserStoreException(
-                            "Role name: " + newRoleName + " is in the system. Please pick another role name.");
-                }
-            }
+        if (this.isExistingRole(newRoleName) && (isCaseSensitiveUsername() || (!isCaseSensitiveUsername()
+                && !roleName.equalsIgnoreCase(newRoleName)))) {
+            throw new UserStoreException(
+                    "Role name: " + newRoleName + " is in the system. Please pick another role name.");
         }
 
         String sqlStmt = HybridJDBCConstants.UPDATE_ROLE_NAME_SQL;
