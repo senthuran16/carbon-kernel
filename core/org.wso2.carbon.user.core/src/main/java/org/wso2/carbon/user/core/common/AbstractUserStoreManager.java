@@ -1789,11 +1789,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
 
         // #################### Domain Name Free Zone Starts Here ################################
         if (!isUserExists) {
-            String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
-                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
-            String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
-            handleGetUserClaimValuesFailure(errorCode, errorMessage, userName, null, profileName);
-            throw new UserStoreException(errorCode + " - " + errorMessage);
+            handleGetNonExistentUser(userName, profileName);
         }
         // check for null claim list
         if (claims == null) {
@@ -14975,5 +14971,21 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             domainNameProperty = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
         }
         return domainNameProperty;
+    }
+
+    /**
+     * Throw an error if the requested user does not exist.
+     *
+     * @param userName              Username.
+     * @param profileName           Profile name.
+     * @throws UserStoreException   Exception when the user does not exist.
+     */
+    protected void handleGetNonExistentUser(String userName, String profileName) throws UserStoreException {
+
+        String errorMessage = String.format(ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getMessage(), userName,
+                realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+        String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
+        handleGetUserClaimValuesFailure(errorCode, errorMessage, userName, null, profileName);
+        throw new UserStoreException(errorCode + " - " + errorMessage);
     }
 }
