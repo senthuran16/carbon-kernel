@@ -214,10 +214,15 @@ public class UserUniqueIDManger {
         List<User> users = new ArrayList<>();
         for (String username : listUsers) {
             User user = new User();
-            String uniqueId = getUniqueId(username, userStoreManager);
-            user.setUsername(username);
-            user.setUserID(uniqueId);
-            user.setUserStoreDomain(userStoreManager.getMyDomainName());
+            try {
+                String uniqueId = getUniqueId(username, userStoreManager);
+                user.setUsername(username);
+                user.setUserID(uniqueId);
+                user.setUserStoreDomain(userStoreManager.getMyDomainName());
+            } catch (UserStoreException e) {
+                // If the user does not have a userID we drop the user from the list.
+                continue;
+            }
             users.add(user);
         }
 

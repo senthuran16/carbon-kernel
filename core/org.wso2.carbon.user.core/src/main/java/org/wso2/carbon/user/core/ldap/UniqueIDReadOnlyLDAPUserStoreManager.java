@@ -1135,8 +1135,8 @@ public class UniqueIDReadOnlyLDAPUserStoreManager extends ReadOnlyLDAPUserStoreM
 
                 } catch (NamingException e) {
                     if (log.isDebugEnabled()) {
-                        log.debug("Error in reading user information in the user store for the user " + userObject
-                                .getUsername() + e.getMessage(), e);
+                        log.debug("Error in reading user information in the user store for the user: " + user + " "
+                                + e.getMessage(), e);
                     }
                 }
 
