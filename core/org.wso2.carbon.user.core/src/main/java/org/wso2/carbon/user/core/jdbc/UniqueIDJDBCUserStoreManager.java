@@ -168,7 +168,6 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             maxItemLimit = givenMax;
         }
 
-        // If provided read the display name attribute.
         String displayNameAttribute = realmConfig.getUserStoreProperty(JDBCUserStoreConstants.DISPLAY_NAME_ATTRIBUTE);
         String domain =  realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
         try {

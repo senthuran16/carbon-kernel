@@ -374,7 +374,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             maxItemLimit = givenMax;
         }
 
-        // read the display name attribute - if provided
         String displayNameAttribute = realmConfig.getUserStoreProperty(JDBCUserStoreConstants.DISPLAY_NAME_ATTRIBUTE);
 
         try {
