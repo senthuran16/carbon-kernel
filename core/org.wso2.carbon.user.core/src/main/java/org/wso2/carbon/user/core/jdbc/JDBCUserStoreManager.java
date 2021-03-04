@@ -374,6 +374,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             maxItemLimit = givenMax;
         }
 
+        // read the display name attribute - if provided
+        String displayNameAttribute = realmConfig.getUserStoreProperty(JDBCUserStoreConstants.DISPLAY_NAME_ATTRIBUTE);
+
         try {
 
             if (filter != null && filter.trim().length() != 0) {
@@ -438,6 +441,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
 
             while (rs.next()) {
+                String displayName = null;
 
                 String name = rs.getString(1);
                 if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(name)) {
@@ -446,7 +450,26 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 // append the domain if exist
                 String domain = realmConfig
                         .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
-                name = UserCoreUtil.addDomainToName(name, domain);
+
+                if (StringUtils.isNotEmpty(displayNameAttribute)) {
+                    String[] propertyNames = {displayNameAttribute};
+
+                    // There is no capability to select profile in UI, So select the Default profile.
+                    Map<String, String> profileDetails = getUserPropertyValues(name, propertyNames, UserCoreConstants.DEFAULT_PROFILE);
+                    displayName = profileDetails.get(displayNameAttribute);
+
+                    // If user created without the display name attribute applied.
+                    if (StringUtils.isNotEmpty(displayName)) {
+                        name = UserCoreUtil.getCombinedName(domain, name, displayName);
+                    } else {
+                        name = UserCoreUtil.addDomainToName(name, domain);
+                    }
+                    if (log.isDebugEnabled()) {
+                        log.debug(displayNameAttribute + " : " + displayName);
+                    }
+                } else {
+                    name = UserCoreUtil.addDomainToName(name, domain);
+                }
                 lst.add(name);
             }
             rs.close();

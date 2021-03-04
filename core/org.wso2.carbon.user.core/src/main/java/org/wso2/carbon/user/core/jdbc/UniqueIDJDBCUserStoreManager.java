@@ -168,6 +168,9 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             maxItemLimit = givenMax;
         }
 
+        // If provided read the display name attribute.
+        String displayNameAttribute = realmConfig.getUserStoreProperty(JDBCUserStoreConstants.DISPLAY_NAME_ATTRIBUTE);
+        String domain =  realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
         try {
 
             if (filter != null && filter.trim().length() != 0) {
@@ -226,13 +229,32 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
             }
 
             while (rs.next()) {
+                String displayName = null;
+                User user;
+
                 String userID = rs.getString(1);
                 String userName = rs.getString(2);
                 if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userID)) {
                     continue;
                 }
 
-                User user = getUser(userID, userName);
+                if (StringUtils.isNotEmpty(displayNameAttribute)) {
+                    String[] propertyNames = {displayNameAttribute};
+
+                    // There is no capability to select profile in UI, So select the Default profile.
+                    Map<String, String> profileDetails = getUserPropertyValuesWithID(userID, propertyNames, UserCoreConstants.DEFAULT_PROFILE);
+                    displayName = profileDetails.get(displayNameAttribute);
+
+                    // If user created without the display name attribute applied.
+                    if (StringUtils.isNotEmpty(displayName)) {
+                        userName = UserCoreUtil.getCombinedName(domain, userName, displayName);
+                        if (log.isDebugEnabled()) {
+                            log.debug(displayNameAttribute + " : " + displayName);
+                        }
+                    }
+                }
+                user = getUser(userID, userName);
+                user.setDisplayName(displayName);
                 userList.add(user);
             }
             rs.close();
