@@ -566,7 +566,9 @@ public final class UserCoreUtil {
                 domainName = domainName.toUpperCase() + CarbonConstants.DOMAIN_SEPARATOR;
                 name = domainName + name;
             }
-        } else if (name.indexOf(UserCoreConstants.NAME_COMBINER) > 0 && name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) > 0 && !UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equalsIgnoreCase(domainName)) {
+        } else if (name.indexOf(UserCoreConstants.NAME_COMBINER) > 0 &&
+                name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) > 0 &&
+                !UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equalsIgnoreCase(domainName)) {
             // UniqueIDJDBCUserStore Combined Name will check here and append the domain.
             String names[] = name.split(UserCoreConstants.DOMAIN_SEPARATOR);
             String domain = UserCoreUtil.extractDomainFromName(names[0]);
