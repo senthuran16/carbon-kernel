@@ -118,7 +118,7 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                 }
                 try {
                     PrivilegedCarbonContext.startTenantFlow();
-                    PrivilegedCarbonContext privilegedCarbonContext = 
+                    PrivilegedCarbonContext privilegedCarbonContext =
                             PrivilegedCarbonContext.getThreadLocalCarbonContext();
                     privilegedCarbonContext.setTenantDomain(tenantDomain, true);
                     if (tenantResponseMsgCtx == null) {
@@ -210,7 +210,13 @@ public class MultitenantMessageReceiver implements MessageReceiver {
 
         if (tenantDelimiterIndex != -1) {
             tenantDomain = MultitenantUtils.getTenantDomainFromUrl(to);
-            serviceAndOperation = to.substring(tenantDelimiterIndex + tenantDomain.length() + 4);
+            try {
+                serviceAndOperation = to.substring(tenantDelimiterIndex + tenantDomain.length() + 4);
+            } catch (StringIndexOutOfBoundsException ex) {
+                // Throw an AxisFault: Invalid URL
+                handleException(mainInMsgContext, new AxisFault("Invalid URL"));
+                return;
+            }
         } else {
             // in this case tenant detail is not with the url but user may have send it
             // with a soap header or an http header.
@@ -571,7 +577,7 @@ public class MultitenantMessageReceiver implements MessageReceiver {
             // we assume that the request should go to the default service
             tenantInMsgCtx.setAxisService(tenantConfigCtx.getAxisConfiguration()
                                                          .getService("__SynapseService"));
-        } 
+        }
         
         tenantInMsgCtx.setEnvelope(mainInMsgContext.getEnvelope());;
 
