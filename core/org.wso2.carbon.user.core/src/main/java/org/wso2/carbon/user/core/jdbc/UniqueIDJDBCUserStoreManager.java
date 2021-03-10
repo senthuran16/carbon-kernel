@@ -28,6 +28,7 @@ import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreClientException;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
@@ -39,6 +40,7 @@ import org.wso2.carbon.user.core.common.RoleBreakdown;
 import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.common.UniqueIDPaginatedSearchResult;
 import org.wso2.carbon.user.core.common.User;
+import org.wso2.carbon.user.core.constants.UserCoreErrorConstants;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.model.Condition;
 import org.wso2.carbon.user.core.model.ExpressionAttribute;
@@ -3201,6 +3203,15 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
         getExpressionConditions(condition, expressionConditions);
 
         for (ExpressionCondition expressionCondition : expressionConditions) {
+            // TODO: This validation has to be removed once ge and le operations are implemented for JDBC userstores.
+            if (ExpressionOperation.GE.toString().equals(expressionCondition.getOperation()) ||
+                    ExpressionOperation.LE.toString().equals(expressionCondition.getOperation())) {
+                String errorMessage = "ge and le operations are not supported for JDBC userstores.";
+                throw new UserStoreClientException(
+                        UserCoreErrorConstants.ErrorMessages.ERROR_CODE_UNSUPPORTED_FILTER_OPERATION.getCode() + " : " +
+                                UserCoreErrorConstants.ErrorMessages.ERROR_CODE_UNSUPPORTED_FILTER_OPERATION
+                                        .getMessage() + " - " + errorMessage);
+            }
             if (ExpressionAttribute.ROLE.toString().equals(expressionCondition.getAttributeName())) {
                 isGroupFiltering = true;
                 totalMultiGroupFilters++;
