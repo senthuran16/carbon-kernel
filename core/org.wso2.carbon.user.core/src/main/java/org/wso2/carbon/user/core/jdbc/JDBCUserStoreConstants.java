@@ -39,6 +39,9 @@ public class JDBCUserStoreConstants {
     private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
     private static final String VALIDATION_INTERVAL = "validationInterval";
 
+    private static final String DISPLAY_NAME_ATTRIBUTE_DESCRIPTION = "This is the attribute name to display as the Display Name";
+    public static final String DISPLAY_NAME_ATTRIBUTE = "DisplayNameAttribute";
+
     static {
 
         //setMandatoryProperty
@@ -54,6 +57,7 @@ public class JDBCUserStoreConstants {
         //set optional properties
         setProperty(UserStoreConfigConstants.disabled, "Disabled", "false", UserStoreConfigConstants.disabledDescription);
         setProperty("ReadOnly", "Read-only", "false", "Indicates whether the user store of this realm operates in the user read only mode or not");
+        setProperty(DISPLAY_NAME_ATTRIBUTE, "Display Name", "", DISPLAY_NAME_ATTRIBUTE_DESCRIPTION);
         setProperty(UserStoreConfigConstants.readGroups, "Read Groups", "true", UserStoreConfigConstants.readLDAPGroupsDescription);
         setProperty(UserStoreConfigConstants.writeGroups, "Write Groups", "true", UserStoreConfigConstants.writeGroupsDescription);
         setProperty("UsernameJavaRegEx", "Username RegEx (Java)", "[a-zA-Z0-9._\\-|//]{3,30}$", "A regular expression to validate user names");
