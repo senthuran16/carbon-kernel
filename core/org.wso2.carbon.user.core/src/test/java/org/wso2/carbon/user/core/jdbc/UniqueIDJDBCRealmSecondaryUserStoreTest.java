@@ -696,6 +696,7 @@ public class UniqueIDJDBCRealmSecondaryUserStoreTest extends BaseTestCase {
     }
 
     public void test204GetDisplayNameOfUser() throws UserStoreException {
+
         // Create user in User Store.
         User user6WithID = admin.addUserWithID("SECONDARY/user6WithID", "pass1",
                 null, null, null);
@@ -724,7 +725,6 @@ public class UniqueIDJDBCRealmSecondaryUserStoreTest extends BaseTestCase {
         String username = user6WithID.getUsername();
         username = UserCoreUtil.getCombinedName(user6WithID.getUserStoreDomain(), username, obtained.get(ClaimTestUtil.CLAIM_URI1));
         assertEquals("SECONDARY/user6WithID$_USERNAME_SEPARATOR_$SECONDARY/usergivenname2withId", username);
-
     }
 
     private void addSecondaryUserStoreManager(RealmConfiguration primaryRealm,

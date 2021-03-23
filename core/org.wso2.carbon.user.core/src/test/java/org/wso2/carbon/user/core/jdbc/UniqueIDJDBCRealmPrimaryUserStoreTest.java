@@ -667,6 +667,7 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
     }
 
     public void test205GetDisplayNameOfUser() throws UserStoreException {
+
         // Create user in User Store.
         User user6WithID = admin.addUserWithID("user6WithID", "pass1",
                 null, null, null);
@@ -680,7 +681,8 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
         Map<String, String> userStoreProperties = admin.getRealmConfiguration().getUserStoreProperties();
         userStoreProperties.put(JDBCUserStoreConstants.DISPLAY_NAME_ATTRIBUTE, "usergivenname2withId");
         admin.getRealmConfiguration().setUserStoreProperties(userStoreProperties);
-        String displayNameAttribute = admin.getRealmConfiguration().getUserStoreProperty(JDBCUserStoreConstants.DISPLAY_NAME_ATTRIBUTE);
+        String displayNameAttribute = admin.getRealmConfiguration().
+                getUserStoreProperty(JDBCUserStoreConstants.DISPLAY_NAME_ATTRIBUTE);
         assertEquals("usergivenname2withId", displayNameAttribute);
 
         // Get Claim value for the display name.
@@ -693,9 +695,9 @@ public class UniqueIDJDBCRealmPrimaryUserStoreTest extends BaseTestCase {
 
         // Append display name to user name.
         String username = user6WithID.getUsername();
-        username = UserCoreUtil.getCombinedName(user6WithID.getUserStoreDomain(), username, obtained.get(ClaimTestUtil.CLAIM_URI1));
+        username = UserCoreUtil.getCombinedName(user6WithID.getUserStoreDomain(),
+                username, obtained.get(ClaimTestUtil.CLAIM_URI1));
         assertEquals("user6WithID$_USERNAME_SEPARATOR_$usergivenname2withId", username);
-
     }
 
     private void clearUserIdResolverCache() {
