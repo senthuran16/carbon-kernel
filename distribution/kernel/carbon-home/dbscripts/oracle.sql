@@ -49,7 +49,6 @@ CREATE OR REPLACE TRIGGER REG_PATH_TRIGGER
                      BEGIN
                        SELECT REG_PATH_SEQUENCE.nextval INTO :NEW.REG_PATH_ID FROM dual;
  			   END;
-/                   
 /
 CREATE TABLE REG_CONTENT (
              REG_CONTENT_ID INTEGER,
