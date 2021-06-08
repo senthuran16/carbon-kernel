@@ -129,6 +129,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     private static final String ADMIN_USER = "AdminUser";
     private static final String PROPERTY_PASSWORD_ERROR_MSG = "PasswordJavaRegExViolationErrorMsg";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+    private static final String IDENTITY_CLAIMS_URI = "http://wso2.org/claims/identity/";
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
     protected int tenantId;
     protected DataSource dataSource = null;
@@ -2811,6 +2812,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     .collect(Collectors.toList()) + " for domain: " + extractedDomain);
         }
 
+        for (org.wso2.carbon.user.core.common.User  user:filteredUserList) {
+            user.setUserStoreDomain(UserCoreUtil.extractDomainFromName(user.getUsername()));
+        }
         return filteredUserList;
     }
 
@@ -14377,13 +14381,59 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         handlePreGetUserListWithID(condition, domain, profileName, limit, offset, sortBy, sortOrder);
-
         if (log.isDebugEnabled()) {
             log.debug("Pre listener get conditional  user list for domain: " + domain);
         }
 
-        List<User> filteredUsers = new ArrayList<>();
         UserStoreManager secManager = getSecondaryUserStoreManager(domain);
+
+        List<User> identityClaimFilteredUsers = new ArrayList<>();
+        List<String> identityClaimFilteredUserNames = new ArrayList<>();
+        List<ExpressionCondition> identityClaimFilterExpressionConditions = new ArrayList<>();
+
+        // Check whether the request has IdentityClaims in filters and branch the flow.
+        boolean isIdentityClaimFiltering = false;
+        getIdentityClaimFilterExpressionConditions(condition, identityClaimFilterExpressionConditions);
+
+        if (identityClaimFilterExpressionConditions.size() >= 1) {
+            // Call the listeners to get the filtered users from relevant identity store.
+            isIdentityClaimFiltering = true;
+
+            if (secManager != null) {
+                try {
+                    for (UserOperationEventListener listener : UMListenerServiceComponent
+                            .getUserOperationEventListeners()) {
+                        if (listener instanceof AbstractUserOperationEventListener) {
+                            AbstractUserOperationEventListener newListener =
+                                    (AbstractUserOperationEventListener) listener;
+                            if (!newListener.doPreGetPaginatedUserList(identityClaimFilterExpressionConditions,
+                                    identityClaimFilteredUserNames, domain, secManager, limit, offset)) {
+                                throw new UserStoreException("Error occurred while retrieving users for Identity " +
+                                        "Claim Filters with pagination parameters");
+                            }
+                        }
+                    }
+                } catch (UserStoreException ex) {
+                    throw new UserStoreException("Error occurred while retrieving users for Identity Claim Filters " +
+                            "with pagination parameters.", ex);
+                }
+            }
+        }
+
+        if (isIdentityClaimFiltering) {
+            for (String username : identityClaimFilteredUserNames) {
+                User user = new User();
+                user.setUsername(username);
+                user.setUserID(getUserIDFromUserName(username));
+                user.setUserStoreDomain(UserCoreUtil.extractDomainFromName(user.getUsername()));
+                identityClaimFilteredUsers.add(user);
+            }
+
+            return identityClaimFilteredUsers;
+        }
+
+        // The flow begins for Filtering with non-Identity Claims.
+        List<User> filteredUsers = new ArrayList<>();
         if (secManager != null) {
             if (secManager instanceof AbstractUserStoreManager) {
                 if (isUniqueUserIdEnabled(secManager)) {
@@ -14407,6 +14457,49 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             log.debug("post listener get conditional  user list for domain: " + domain);
         }
         return filteredUsers;
+    }
+
+    private void getIdentityClaimFilterExpressionConditions(Condition condition,
+                                                            List<ExpressionCondition> identityClaimFilterConditions)
+            throws UserStoreException {
+
+        try {
+            org.wso2.carbon.user.api.ClaimMapping[] claimMapping = claimManager.getAllClaimMappings();
+
+            if (condition instanceof ExpressionCondition) {
+                ExpressionCondition expressionCondition = (ExpressionCondition) condition;
+                List<org.wso2.carbon.user.api.ClaimMapping> mappedClaim =
+                        Arrays.stream(claimMapping).filter(mapping -> mapping.getMappedAttribute() ==
+                                expressionCondition.getAttributeName()).collect(Collectors.toList());
+
+                if (mappedClaim.size() == 1) {
+
+                    //Obtaining relevant URI for the mapped attribute.
+                    String tempClaimURI = mappedClaim.get(0).getClaim().getClaimUri();
+
+                    //Check if the claimURI are of type 'identity claims'.
+                    if (tempClaimURI.contains(IDENTITY_CLAIMS_URI)) {
+                        expressionCondition.setAttributeName(tempClaimURI);
+                        identityClaimFilterConditions.add(expressionCondition);
+                        if (log.isDebugEnabled()) {
+                            log.debug("Obtained the ClaimURI " + tempClaimURI + " from the map for the provided " +
+                                    "attribute.");
+                        }
+                    }
+                } else {
+                    log.warn("Obtained two mapped claim for an attribute.");
+                }
+
+            } else if (condition instanceof OperationalCondition) {
+                Condition leftCondition = ((OperationalCondition) condition).getLeftCondition();
+                getIdentityClaimFilterExpressionConditions(leftCondition, identityClaimFilterConditions);
+                Condition rightCondition = ((OperationalCondition) condition).getRightCondition();
+                getIdentityClaimFilterExpressionConditions(rightCondition, identityClaimFilterConditions);
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error occurred while extracting the identity claim filters from the " +
+                    "expression nodes.", e);
+        }
     }
 
     private List<User> doGetUserListWithID(String claim, String claimValue, String profileName, int limit, int offset,

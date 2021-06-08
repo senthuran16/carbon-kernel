@@ -23,6 +23,7 @@ import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.model.Condition;
+import org.wso2.carbon.user.core.model.ExpressionCondition;
 import org.wso2.carbon.user.core.model.UserClaimSearchEntry;
 
 import java.util.List;
@@ -803,4 +804,21 @@ public interface UserOperationEventListener {
         return true;
     }
 
+    /**
+     * Pre listener for getting paginated user list for certain claim and value.
+     *
+     * @param identityClaimFilterExpressionConditions
+     * @param domain                 UserStoreDomainName.
+     * @param userStoreManager       User Store Manager.
+     * @param limit                  Pagination parameter for the size of the page.
+     * @param offset                 Pagination parameter that indexes the start of the page.
+     * @throws UserStoreException UserStoreException
+     */
+    default  boolean doPreGetPaginatedUserList (List<ExpressionCondition> identityClaimFilterExpressionConditions,
+                                                List<String> userNames, String domain,
+                                                UserStoreManager userStoreManager, int limit , int offset)
+            throws UserStoreException {
+
+        return true;
+    }
 }
