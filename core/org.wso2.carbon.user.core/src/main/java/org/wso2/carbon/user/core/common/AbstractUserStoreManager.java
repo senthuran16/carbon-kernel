@@ -14392,7 +14392,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         List<ExpressionCondition> identityClaimFilterExpressionConditions = new ArrayList<>();
 
         // Check whether the request has IdentityClaims in filters and branch the flow.
-        boolean isIdentityClaimFiltering = false;
+        boolean isIdentityClaimFiltering;
         getIdentityClaimFilterExpressionConditions(condition, identityClaimFilterExpressionConditions);
 
         if (identityClaimFilterExpressionConditions.size() >= 1) {
