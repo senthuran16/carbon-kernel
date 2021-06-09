@@ -14409,7 +14409,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                             if (!newListener.doPreGetPaginatedUserList(identityClaimFilterExpressionConditions,
                                     identityClaimFilteredUserNames, domain, secManager, limit, offset)) {
                                 throw new UserStoreException("Error occurred while retrieving users for Identity " +
-                                        "Claim Filters with pagination parameters");
+                                        "Claim Filters with pagination parameters.");
                             }
                         }
                     }
