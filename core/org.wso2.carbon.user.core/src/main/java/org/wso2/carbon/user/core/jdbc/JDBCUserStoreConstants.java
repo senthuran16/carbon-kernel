@@ -86,6 +86,28 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty(JDBCRealmConstants.STORE_SALTED_PASSWORDS, "Enable Salted Passwords", "true", "Indicates whether to salt " +
                 "the password");
 
+        setAdvancedProperty(JDBCRealmConstants.MAX_ACTIVE, "Maximum Active Connections", "40", "The maximum number " +
+                "of active connections that can be allocated from the connection pool at the same time");
+
+        setAdvancedProperty(JDBCRealmConstants.MIN_IDLE, "Minimum Idle Connections", "5", "The minimum number of " +
+                "connections that can remain idle in the pool, without extra ones being created");
+
+        setAdvancedProperty(JDBCRealmConstants.MAX_IDLE, "Maximum Idle Connections", "6", "The maximum number of " +
+                "connections that can remain idle in the pool");
+
+        setAdvancedProperty(JDBCRealmConstants.MAX_WAIT, "Maximum Wait Time for Requests", "60000", "The maximum time" +
+                " that requests are expected to wait in the queue for a connection to be released");
+
+        setAdvancedProperty(JDBCRealmConstants.TEST_WHILE_IDLE, "Enable Test While Idle", "false", "The indication of" +
+                " whether connections will be validated when they remain idle");
+
+        setAdvancedProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS, "Time Between Eviction Runs", "5000",
+                "The number of milliseconds to sleep between runs of the idle connection validation/cleaner thread");
+
+        setAdvancedProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS, "Minimum Idle Time Before Eviction",
+                "60000", "The minimum amount of time an object may sit idle in the pool before it is eligible for " +
+                        "eviction");
+
         setAdvancedProperty(UserStoreConfigConstants.maxUserNameListLength, "Maximum User List Length", "100", UserStoreConfigConstants
                 .maxUserNameListLengthDescription);
         setAdvancedProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Role List Length", "100", UserStoreConfigConstants
