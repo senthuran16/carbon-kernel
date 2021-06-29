@@ -4315,7 +4315,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 if (isCaseSensitiveUsername()) {
                     sqlBuilder.where("U.UM_USER_NAME = ?", expressionCondition.getAttributeValue());
                 } else {
-                    sqlBuilder.where("U.UM_USER_NAME = LOWER(?)", expressionCondition.getAttributeValue());
+                    sqlBuilder.where("LOWER(U.UM_USER_NAME) = LOWER(?)", expressionCondition.getAttributeValue());
                 }
             } else if (ExpressionOperation.CO.toString().equals(expressionCondition.getOperation()) &&
                     ExpressionAttribute.USERNAME.toString().equals(expressionCondition.getAttributeName())) {
@@ -4323,7 +4323,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     sqlBuilder.where("U.UM_USER_NAME LIKE ?", "%" + expressionCondition.getAttributeValue()
                             + "%");
                 } else {
-                    sqlBuilder.where("U.UM_USER_NAME LIKE LOWER(?)", "%" +
+                    sqlBuilder.where("LOWER(U.UM_USER_NAME) LIKE LOWER(?)", "%" +
                             expressionCondition.getAttributeValue() + "%");
                 }
             } else if (ExpressionOperation.EW.toString().equals(expressionCondition.getOperation()) &&
@@ -4331,7 +4331,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 if (isCaseSensitiveUsername()) {
                     sqlBuilder.where("U.UM_USER_NAME LIKE ?", "%" + expressionCondition.getAttributeValue());
                 } else {
-                    sqlBuilder.where("U.UM_USER_NAME LIKE LOWER(?)", "%" +
+                    sqlBuilder.where("LOWER(U.UM_USER_NAME) LIKE LOWER(?)", "%" +
                             expressionCondition.getAttributeValue());
                 }
             } else if (ExpressionOperation.SW.toString().equals(expressionCondition.getOperation()) &&
@@ -4339,7 +4339,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 if (isCaseSensitiveUsername()) {
                     sqlBuilder.where("U.UM_USER_NAME LIKE ?", expressionCondition.getAttributeValue() + "%");
                 } else {
-                    sqlBuilder.where("U.UM_USER_NAME LIKE LOWER(?)", expressionCondition.getAttributeValue()
+                    sqlBuilder.where("LOWER(U.UM_USER_NAME) LIKE LOWER(?)", expressionCondition.getAttributeValue()
                             + "%");
                 }
             } else {
