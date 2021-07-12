@@ -14546,11 +14546,19 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             duplicateCondition = new ExpressionCondition(condition.getOperation(),
                     ((ExpressionCondition) condition).getAttributeName(),
                     ((ExpressionCondition) condition).getAttributeValue());
-        } else {
+        } else if (condition instanceof OperationalCondition) {
             duplicateCondition = new OperationalCondition(condition.getOperation(),
                     ((OperationalCondition) condition).getLeftCondition(),
                     ((OperationalCondition) condition).getRightCondition());
-        }
+        } else {
+            /* Have not duplicated the remaining condition objects.
+             If it is essential to duplicate, handle it with an if-else.*/
+            duplicateCondition = condition;
+            if (log.isDebugEnabled()) {
+                log.debug(" Condition object is not duplicated. This might end up in failures when domain names are " +
+                        "not provided in the request as the flows nullify the conditions in due process.");
+            }
+    }
         return duplicateCondition;
     }
 
