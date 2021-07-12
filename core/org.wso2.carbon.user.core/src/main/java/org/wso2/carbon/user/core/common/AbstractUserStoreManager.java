@@ -14555,7 +14555,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
              If it is essential to duplicate, handle it with an if-else.*/
             duplicateCondition = condition;
             if (log.isDebugEnabled()) {
-                log.debug(" Condition object is not duplicated. This might end up in failures when domain names are " +
+                log.debug("Condition object is not duplicated. This might end up in failures when domain names are " +
                         "not provided in the request as the flows nullify the conditions in due process.");
             }
     }
