@@ -13210,7 +13210,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             internalRoleDel.add(deleteRole);
         } else if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) || this.isReadOnly()) {
             internalRoleDel.add(UserCoreUtil.removeDomainFromName(deleteRole));
-            roleDel.add(deleteRole);
         } else {
             // This is domain free role name.
             roleDel.add(UserCoreUtil.removeDomainFromName(deleteRole));
