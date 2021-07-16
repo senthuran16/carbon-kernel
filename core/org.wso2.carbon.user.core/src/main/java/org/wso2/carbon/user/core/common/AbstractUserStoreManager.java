@@ -14460,6 +14460,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 paginationLimit = (offset - 1) + limit;
             }
 
+            Set<User> prevItertationFilteredUsers = new HashSet<>();
             while (aggregateUserList.size() < paginationLimit) {
                 tempFilteredUsers = getFilteredUsers(duplicateCondition, profileName, limit, offsetCounter, sortBy,
                         sortOrder, secondaryUserStoreManager);
@@ -14468,6 +14469,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     // Means no users has been filtered in this particular iteration and hence can exit the flow.
                     break;
                 }
+
+                // Prevent same set of users being returned and break the loop if so.
+                if (prevItertationFilteredUsers.size() == tempFilteredUsers.size()) {
+                    if (isExactSameFilteredUsers(tempFilteredUsers, prevItertationFilteredUsers)) {
+                        break;
+                    }
+                }
+
+                prevItertationFilteredUsers.clear();
+                prevItertationFilteredUsers.addAll(tempFilteredUsers);
+
                 // For next iteration consider the offset from last fetched size of users.
                 offsetCounter += limit;
 
@@ -14509,6 +14521,16 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             log.debug("post listener get conditional  user list for domain: " + domain);
         }
         return filteredUsers;
+    }
+
+    private boolean isExactSameFilteredUsers(List<User> tempFilteredUsers, Set<User> prevItertationFilteredUsers) {
+
+        for (User user: tempFilteredUsers) {
+            if (!prevItertationFilteredUsers.contains(user)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private List<User> getFilteredUsers(Condition condition, String profileName, int limit, int offset, String sortBy,
