@@ -14460,7 +14460,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 paginationLimit = (offset - 1) + limit;
             }
 
-            Set<User> prevItertationFilteredUsers = new HashSet<>();
+            Set<User> prevIterationFilteredUsers = new HashSet<>();
             while (aggregateUserList.size() < paginationLimit) {
                 tempFilteredUsers = getFilteredUsers(duplicateCondition, profileName, limit, offsetCounter, sortBy,
                         sortOrder, secondaryUserStoreManager);
@@ -14471,14 +14471,13 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 }
 
                 // Prevent same set of users being returned and break the loop if so.
-                if (prevItertationFilteredUsers.size() == tempFilteredUsers.size()) {
-                    if (isExactSameFilteredUsers(tempFilteredUsers, prevItertationFilteredUsers)) {
-                        break;
-                    }
+                if (isExactSameFilteredUsers(tempFilteredUsers, prevIterationFilteredUsers)) {
+                    break;
                 }
 
-                prevItertationFilteredUsers.clear();
-                prevItertationFilteredUsers.addAll(tempFilteredUsers);
+
+                prevIterationFilteredUsers.clear();
+                prevIterationFilteredUsers.addAll(tempFilteredUsers);
 
                 // For next iteration consider the offset from last fetched size of users.
                 offsetCounter += limit;
@@ -14523,14 +14522,18 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         return filteredUsers;
     }
 
-    private boolean isExactSameFilteredUsers(List<User> tempFilteredUsers, Set<User> prevItertationFilteredUsers) {
+    private boolean isExactSameFilteredUsers(List<User> tempFilteredUsers, Set<User> prevIterationFilteredUsers) {
 
-        for (User user: tempFilteredUsers) {
-            if (!prevItertationFilteredUsers.contains(user)) {
-                return false;
+        if (prevIterationFilteredUsers.size() == tempFilteredUsers.size()) {
+            for (User user : tempFilteredUsers) {
+                if (!prevIterationFilteredUsers.contains(user)) {
+                    return false;
+                }
             }
+            return true;
+        } else {
+            return false;
         }
-        return true;
     }
 
     private List<User> getFilteredUsers(Condition condition, String profileName, int limit, int offset, String sortBy,
