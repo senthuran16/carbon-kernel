@@ -14475,7 +14475,6 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     break;
                 }
 
-
                 prevIterationFilteredUsers.clear();
                 prevIterationFilteredUsers.addAll(tempFilteredUsers);
 
