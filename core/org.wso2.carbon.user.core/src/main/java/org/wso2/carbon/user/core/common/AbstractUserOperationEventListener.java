@@ -327,6 +327,23 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
     }
 
     /**
+     * Define any additional actions before updating internal role list of user.
+     *
+     * @param userName
+     * @param deletedInternalRoles
+     * @param newInternalRoles
+     * @param userStoreManager
+     * @return
+     * @throws org.wso2.carbon.user.core.UserStoreException
+     */
+    public boolean doPreUpdateInternalRoleListOfUser(String userName, String[] deletedInternalRoles,
+                                                     String[] newInternalRoles, UserStoreManager userStoreManager)
+            throws UserStoreException {
+
+        return true;
+    }
+
+    /**
      * Define any additional actions after updating role list of user.
      *
      * @param userName
@@ -338,6 +355,23 @@ public class AbstractUserOperationEventListener implements UniqueIDUserOperation
      */
     public boolean doPostUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles,
             UserStoreManager userStoreManager) throws UserStoreException {
+
+        return true;
+    }
+
+    /**
+     * Define any additional actions after updating internal role list of user.
+     *
+     * @param userName
+     * @param deletedInternalRoles
+     * @param newInternalRoles
+     * @param userStoreManager
+     * @return
+     * @throws org.wso2.carbon.user.core.UserStoreException
+     */
+    public boolean doPostUpdateInternalRoleListOfUser(String userName, String[] deletedInternalRoles,
+                                                      String[] newInternalRoles, UserStoreManager userStoreManager)
+            throws UserStoreException {
 
         return true;
     }
