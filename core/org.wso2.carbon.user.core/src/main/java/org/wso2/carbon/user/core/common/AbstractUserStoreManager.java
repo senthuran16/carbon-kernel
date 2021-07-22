@@ -5154,6 +5154,12 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         List<String> roleDel = new ArrayList<String>();
         List<String> roleNew = new ArrayList<String>();
 
+        List<String> internalRoleDelWithDomain = new ArrayList<>();
+        List<String> internalRoleNewWithDomain = new ArrayList<>();
+
+        String[] deletedInternalRolesArrayWithDomain = new String[0];
+        String[] newInternalRolesArrayWithDomain = new String[0];
+
         if (deletedRoles != null && deletedRoles.length > 0) {
             for (String deleteRole : deletedRoles) {
                 if (UserCoreUtil.isEveryoneRole(deleteRole, realmConfig)) {
@@ -5167,9 +5173,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (index1 > 0) {
                     domain = deleteRole.substring(0, index1);
                 }
-                processDeletedRoles(internalRoleDel, roleDel, deleteRole, domain);
+                processDeletedRoles(internalRoleDel, roleDel, deleteRole, domain, internalRoleDelWithDomain);
             }
             deletedRoles = roleDel.toArray(new String[roleDel.size()]);
+            deletedInternalRolesArrayWithDomain = internalRoleDelWithDomain.toArray
+                    (new String[internalRoleDelWithDomain.size()]);
         }
 
         if (newRoles != null && newRoles.length > 0) {
@@ -5186,9 +5194,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     domain = newRole.substring(0, index2);
                 }
 
-                processNewRoles(internalRoleNew, roleNew, newRole, domain);
+                processNewRoles(internalRoleNew, roleNew, newRole, domain, internalRoleNewWithDomain);
             }
             newRoles = roleNew.toArray(new String[roleNew.size()]);
+            newInternalRolesArrayWithDomain = internalRoleNewWithDomain.toArray
+                    (new String[internalRoleNewWithDomain.size()]);
         }
 
         if (internalRoleDel.size() > 0 || internalRoleNew.size() > 0) {
@@ -5213,6 +5223,27 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             handleUpdateRoleListOfUserFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_OF_USER.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_OF_USER.getMessage(),
                             ex.getMessage()), userName, deletedRoles, newRoles);
+            throw ex;
+        }
+
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (!listener.doPreUpdateInternalRoleListOfUser(userName, deletedInternalRolesArrayWithDomain,
+                                                                newInternalRolesArrayWithDomain, this)) {
+                    handleUpdateRoleListOfUserFailure(
+                            ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_OF_USER.getCode(),
+                            String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_OF_USER.getMessage(),
+                                          UserCoreErrorConstants.PRE_LISTENER_TASKS_FAILED_MESSAGE),
+                            userName, deletedRoles, newRoles);
+                    return;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleUpdateRoleListOfUserFailure(
+                    ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_OF_USER.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_PRE_UPDATE_ROLE_OF_USER.getMessage(),
+                                  ex.getMessage()),
+                    userName, deletedRoles, newRoles);
             throw ex;
         }
         // #################### </Listeners> #####################################################
@@ -5260,6 +5291,27 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             handleUpdateRoleListOfUserFailure(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getCode(),
                     String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getMessage(),
                             ex.getMessage()), userName, deletedRoles, newRoles);
+            throw ex;
+        }
+
+        try {
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (!listener.doPostUpdateInternalRoleListOfUser(userName, deletedInternalRolesArrayWithDomain,
+                                                                 newInternalRolesArrayWithDomain, this)) {
+                    handleUpdateRoleListOfUserFailure(
+                            ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getCode(),
+                            String.format(
+                                    ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getMessage(),
+                                    UserCoreErrorConstants.POST_LISTENER_TASKS_FAILED_MESSAGE),
+                            userName, deletedRoles, newRoles);
+                    return;
+                }
+            }
+        } catch (UserStoreException ex) {
+            handleUpdateRoleListOfUserFailure(
+                    ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getCode(),
+                    String.format(ErrorMessages.ERROR_CODE_ERROR_DURING_POST_UPDATE_ROLE_OF_USER.getMessage(),
+                                  ex.getMessage()), userName, deletedRoles, newRoles);
             throw ex;
         }
     }
@@ -13072,6 +13124,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         List<String> roleDel = new ArrayList<>();
         List<String> roleNew = new ArrayList<>();
 
+        List<String> internalRoleDelWithDomain = new ArrayList<>();
+        List<String> internalRoleNewWithDomain = new ArrayList<>();
+
         if (deletedRoles != null && deletedRoles.length > 0) {
             for (String deleteRole : deletedRoles) {
                 if (UserCoreUtil.isEveryoneRole(deleteRole, realmConfig)) {
@@ -13086,7 +13141,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                 if (index1 > 0) {
                     domain = deleteRole.substring(0, index1);
                 }
-                processDeletedRoles(internalRoleDel, roleDel, deleteRole, domain);
+                processDeletedRoles(internalRoleDel, roleDel, deleteRole, domain, internalRoleDelWithDomain);
             }
             deletedRoles = roleDel.toArray(new String[0]);
         }
@@ -13106,7 +13161,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     domain = newRole.substring(0, index2);
                 }
 
-                processNewRoles(internalRoleNew, roleNew, newRole, domain);
+                processNewRoles(internalRoleNew, roleNew, newRole, domain, internalRoleNewWithDomain);
             }
             newRoles = roleNew.toArray(new String[0]);
         }
@@ -13188,28 +13243,33 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
     }
 
-    private void processNewRoles(List<String> internalRoleNew, List<String> roleNew, String newRole, String domain)
-            throws UserStoreException {
+    private void processNewRoles(List<String> internalRoleNew, List<String> roleNew, String newRole, String domain,
+                                 List<String> internalRoleNewWithDomain) throws UserStoreException {
         if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
             // If this is an internal role.
             internalRoleNew.add(UserCoreUtil.removeDomainFromName(newRole));
+            internalRoleNewWithDomain.add(newRole);
         } else if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
             // If this is an application role or workflow role.
             internalRoleNew.add(newRole);
+            internalRoleNewWithDomain.add(newRole);
         } else if (this.isReadOnly()) {
             // If this is a readonly user store, we add even normal roles as internal roles.
             internalRoleNew.add(UserCoreUtil.removeDomainFromName(newRole));
+            internalRoleNewWithDomain.add(newRole);
         } else {
             roleNew.add(UserCoreUtil.removeDomainFromName(newRole));
         }
     }
 
     private void processDeletedRoles(List<String> internalRoleDel, List<String> roleDel, String deleteRole,
-            String domain) throws UserStoreException {
+            String domain, List<String> internalRoleDelWithDomain) throws UserStoreException {
         if (APPLICATION_DOMAIN.equalsIgnoreCase(domain) || WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
             internalRoleDel.add(deleteRole);
+            internalRoleDelWithDomain.add(deleteRole);
         } else if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) || this.isReadOnly()) {
             internalRoleDel.add(UserCoreUtil.removeDomainFromName(deleteRole));
+            internalRoleDelWithDomain.add(deleteRole);
         } else {
             // This is domain free role name.
             roleDel.add(UserCoreUtil.removeDomainFromName(deleteRole));
