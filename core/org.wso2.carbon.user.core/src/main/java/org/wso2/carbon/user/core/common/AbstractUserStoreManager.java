@@ -7119,9 +7119,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                                String domainName) throws UserStoreException {
 
         String userName = getFromUserNameCache(userId);
-        if (StringUtils.isNotEmpty(userName) &&
-                StringUtils.equals(UserCoreUtil.extractDomainFromName(userName), domainName)) {
-            return true;
+        if (StringUtils.isNotEmpty(userName)) {
+            return StringUtils.equals(UserCoreUtil.extractDomainFromName(userName), domainName);
         }
         return (abstractUserStoreManager.doGetUserNameFromUserIDWithID(userId) != null);
     }
@@ -11975,7 +11974,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         if (isUniqueUserIdEnabled()) {
             String userName = getFromUserNameCache(userID);
             if (StringUtils.isNotEmpty(userName)) {
-                return userName;
+                return UserCoreUtil.removeDomainFromName(userName);
             }
             return doGetUserNameFromUserIDWithID(userID);
         }
