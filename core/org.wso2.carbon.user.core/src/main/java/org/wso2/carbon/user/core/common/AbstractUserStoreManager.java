@@ -2813,7 +2813,9 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         for (org.wso2.carbon.user.core.common.User  user:filteredUserList) {
-            user.setUserStoreDomain(UserCoreUtil.extractDomainFromName(user.getUsername()));
+            if (StringUtils.isBlank(user.getUserStoreDomain())) {
+                user.setUserStoreDomain(UserCoreUtil.extractDomainFromName(user.getUsername()));
+            }
         }
         return filteredUserList;
     }
