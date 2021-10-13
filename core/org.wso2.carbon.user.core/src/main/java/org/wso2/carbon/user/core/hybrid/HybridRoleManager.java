@@ -241,6 +241,13 @@ public class HybridRoleManager {
             searchTime = DEFAULT_MAX_SEARCH_TIME;
         }
 
+        // Convert 'Application' domain from uppercase to camelcase to accurately perform the DB search.
+        if (filter.toLowerCase().startsWith(UserCoreConstants.APPLICATION_DOMAIN.toLowerCase())) {
+            int index;
+            if ((index = filter.indexOf(CarbonConstants.DOMAIN_SEPARATOR)) >= 0) {
+                filter = UserCoreConstants.APPLICATION_DOMAIN + filter.substring(index);
+            }
+        }
         try {
             if (filter != null && filter.trim().length() != 0) {
                 filter = filter.trim();
@@ -275,9 +282,9 @@ public class HybridRoleManager {
 
             byte increment = 0;
             if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
-                prepStmt.setString(++increment, UserCoreUtil.removeDomainFromName(filter).toUpperCase());
+                prepStmt.setString(++increment, UserCoreUtil.removeDomainFromName(filter));
             } else {
-                prepStmt.setString(++increment, filter.toUpperCase());
+                prepStmt.setString(++increment, filter);
             }
 
             if (filter.startsWith(UserCoreConstants.INTERNAL_DOMAIN)) {
