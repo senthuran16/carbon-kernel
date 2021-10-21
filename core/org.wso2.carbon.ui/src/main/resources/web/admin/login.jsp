@@ -21,6 +21,7 @@
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -80,8 +81,8 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
     </script>
 
     <%
-        String loginStatus = CharacterEncoder.getSafeText(request.getParameter("loginStatus"));
-        String errorCode = CharacterEncoder.getSafeText(request.getParameter("errorCode"));
+        String loginStatus = Encode.forHtml(request.getParameter("loginStatus"));
+        String errorCode = Encode.forHtml(request.getParameter("errorCode"));
 
         if (loginStatus != null && "false".equalsIgnoreCase(loginStatus)) {
             if (errorCode == null) {
