@@ -81,8 +81,8 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
     </script>
 
     <%
-        String loginStatus = Encode.forHtml(request.getParameter("loginStatus"));
-        String errorCode = Encode.forHtml(request.getParameter("errorCode"));
+        String loginStatus = CharacterEncoder.getSafeText(request.getParameter("loginStatus"));
+        String errorCode = CharacterEncoder.getSafeText(request.getParameter("errorCode"));
 
         if (loginStatus != null && "false".equalsIgnoreCase(loginStatus)) {
             if (errorCode == null) {
@@ -92,7 +92,7 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
 
     <script type="text/javascript">
         jQuery(document).ready(function() {
-            CARBON.showWarningDialog('<fmt:message key="<%=errorCode%>"/>');
+            CARBON.showWarningDialog('<fmt:message key="<%=Encode.forJavaScript(errorCode)%>"/>');
         });
     </script>
     <%
@@ -105,7 +105,7 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
      %>
     <script type="text/javascript">
         jQuery(document).ready(function() {
-            CARBON.showWarningDialog('<fmt:message key="<%=errorCode%>"/>');
+            CARBON.showWarningDialog('<fmt:message key="<%=Encode.forJavaScript(errorCode)%>"/>');
         });
     </script>
     <%
