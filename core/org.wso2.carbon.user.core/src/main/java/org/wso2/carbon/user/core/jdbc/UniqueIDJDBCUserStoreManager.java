@@ -2314,6 +2314,42 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 prepStmt.setInt(4, tenantId);
                 prepStmt.setInt(5, tenantId);
             }
+
+            int searchTime;
+            int maxItemLimit;
+            try {
+                maxItemLimit = Integer.parseInt(realmConfig
+                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
+            } catch (NumberFormatException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Unable to get the " + UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST +
+                            " from the realm configuration. The default value: " +
+                            UserCoreConstants.MAX_USER_ROLE_LIST + " is used instead.", e);
+                }
+                maxItemLimit = UserCoreConstants.MAX_USER_ROLE_LIST;
+            }
+            try {
+                searchTime = Integer.parseInt(realmConfig
+                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
+            } catch (NumberFormatException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Unable to get the " + UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME +
+                            " from the realm configuration. The default value: " + UserCoreConstants.MAX_SEARCH_TIME +
+                            " is used instead.", e);
+                }
+                searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+            }
+
+            prepStmt.setMaxRows(maxItemLimit);
+            try {
+                prepStmt.setQueryTimeout(searchTime);
+            } catch (SQLException e) {
+                // If SQL exception occurred here, we can ignore cause timeout method is not implemented.
+                if (log.isDebugEnabled()) {
+                    String msg = "Database error occurred while setting the search timeout value";
+                    log.debug(msg, e);
+                }
+            }
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 String userID = rs.getString(1);
