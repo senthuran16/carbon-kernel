@@ -654,12 +654,14 @@
         <maven.spotbugsplugin.version>3.1.10</maven.spotbugsplugin.version>
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <maven.spotbugs.dependency.version>3.1.11</maven.spotbugs.dependency.version>
-        <version.jinjava>2.4.14</version.jinjava>
+        <version.jinjava>2.6.0</version.jinjava>
         <version.cava-toml>0.5.0</version.cava-toml>
         <version.checkstyle>7.8.2</version.checkstyle>
         <version.jackson>2.13.1</version.jackson>
         <version.jackson.databind>2.13.1</version.jackson.databind>
+        <version.jackson.dataformat>2.13.1</version.jackson.dataformat>
         <version.guava>27.0.1-jre</version.guava>
+        <version.jsoup>1.14.3</version.jsoup>
         <version.ciphertool>1.1.0</version.ciphertool>
         <xml.unit.verions>2.6.2</xml.unit.verions>
         <version.org.apache.felix.scr.ds-annotations>1.2.10</version.org.apache.felix.scr.ds-annotations>
@@ -1817,9 +1819,19 @@
                 <version>${version.jackson}</version>
             </dependency>
             <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
+                <version>${version.jackson.dataformat}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${version.guava}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>${version.jsoup}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.ciphertool</groupId>
