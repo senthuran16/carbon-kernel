@@ -7038,11 +7038,17 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                     // If there is a user for the give user id, then that is the correct domain.
                     AbstractUserStoreManager abstractUserStoreManager = (AbstractUserStoreManager) entry.getValue();
                     if (abstractUserStoreManager.isUniqueUserIdEnabled()) {
-                        if (isUserExistsWithGivenDomain(userId, abstractUserStoreManager, entry.getKey())) {
-                            // If we found a domain name for the give user id, update the domain resolver with the name.
-                            domainName = entry.getKey();
-                            userUniqueIDDomainResolver.setDomainForUserId(userId, domainName, tenantId);
-                            break;
+                        try {
+                            if (isUserExistsWithGivenDomain(userId, abstractUserStoreManager, entry.getKey())) {
+                                // If we found a domain name for the give user id, update the domain resolver with
+                                // the name.
+                                domainName = entry.getKey();
+                                userUniqueIDDomainResolver.setDomainForUserId(userId, domainName, tenantId);
+                                break;
+                            }
+                        } catch (UserStoreException e) {
+                            log.error(String.format("Error occurred while checking the user with the userId: %s for " +
+                                    "domain: %s " + "Therefore,proceeding remaining domains", userId, entry.getKey()), e);
                         }
                     } else {
                         // This is happening when the user store is not supporting uniqueID.
@@ -7054,12 +7060,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
                                 break;
                             }
                         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                                handleGetUserListFailure(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getCode(),
-                                        String.format(ErrorMessages.ERROR_CODE_ERROR_WHILE_GETTING_USER_LIST.getMessage(),
-                                                e.getMessage()), UserCoreClaimConstants.USER_ID_CLAIM_URI, userId,
-                                        null);
-                                throw new UserStoreException("Unable retrieve users from getUserListFromProperties " +
-                                        "method from the user store: " + entry.getKey() + ".", e);
+                            log.error("Unable retrieve users from getUserListFromProperties " + "method from the user" +
+                                    " store: " + entry.getKey() + ". Therefore,proceeding remaining domains", e);
                         }
                     }
                 }
