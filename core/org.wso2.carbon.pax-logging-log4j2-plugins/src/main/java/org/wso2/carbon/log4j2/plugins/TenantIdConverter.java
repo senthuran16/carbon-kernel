@@ -67,7 +67,7 @@ public class TenantIdConverter extends LogEventPatternConverter {
             if (value != null) {
                 StringBuilders.appendValue(toAppendTo, value);
             } else {
-                StringBuilders.appendValue(toAppendTo,MultitenantConstants.SUPER_TENANT_ID);
+                StringBuilders.appendValue(toAppendTo, MultitenantConstants.SUPER_TENANT_ID);
             }
         }
     }
