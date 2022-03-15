@@ -122,6 +122,8 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                     PrivilegedCarbonContext privilegedCarbonContext =
                             PrivilegedCarbonContext.getThreadLocalCarbonContext();
                     privilegedCarbonContext.setTenantDomain(tenantDomain, true);
+                    MDC.put(MultitenantConstants.TENANT_ID, String.valueOf(privilegedCarbonContext.getTenantId()));
+                    MDC.put(MultitenantConstants.TENANT_DOMAIN, tenantDomain);
                     if (tenantResponseMsgCtx == null) {
                         tenantResponseMsgCtx = new MessageContext();
                         tenantResponseMsgCtx.setOperationContext(tenantRequestMsgCtx.getOperationContext());
@@ -189,6 +191,8 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                                 mainInMsgContext.getProperty(MultitenantConstants.CONTENT_TYPE));
                     AxisEngine.receive(tenantResponseMsgCtx);
                 } finally {
+                    MDC.remove(MultitenantConstants.TENANT_ID);
+                    MDC.remove(MultitenantConstants.TENANT_DOMAIN);
                     PrivilegedCarbonContext.endTenantFlow();
                 }
             }
