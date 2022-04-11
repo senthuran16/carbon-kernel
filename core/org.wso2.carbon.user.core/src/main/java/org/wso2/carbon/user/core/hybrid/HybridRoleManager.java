@@ -66,6 +66,7 @@ public class HybridRoleManager {
     private boolean userRolesCacheEnabled = true;
     private static final String APPLICATION_DOMAIN = "Application";
     private static final String WORKFLOW_DOMAIN = "Workflow";
+    private static final String DOMAIN_SEPARATOR = "/";
 
     private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
 
@@ -480,6 +481,7 @@ public class HybridRoleManager {
                 // If the filter contains the internal domain, then here we remove the internal domain from the filter
                 // as the database only has the role name without the internal domain.
                 filter = truncateInternalDomainFromFilter(filter);
+                filter = alterApplicationDomainFromFilter(filter);
                 roles = DatabaseUtil
                         .getStringValuesFromDatabase(dbConnection, sqlStmt, UserCoreUtil.removeDomainFromName(userName),
                                 tenantId, tenantId, tenantId, domain, filter);
@@ -490,6 +492,7 @@ public class HybridRoleManager {
                         JDBCCaseInsensitiveConstants.GET_IS_USER_ROLE_SQL_CASE_INSENSITIVE);
 
                 filter = truncateInternalDomainFromFilter(filter);
+                filter = alterApplicationDomainFromFilter(filter);
                 roles = DatabaseUtil
                         .getStringValuesFromDatabase(dbConnection, sqlStmt, UserCoreUtil.removeDomainFromName(userName),
                                 tenantId, tenantId, tenantId, domain, filter);
@@ -548,6 +551,27 @@ public class HybridRoleManager {
             }
         }
         return filter;
+    }
+
+    /**
+     * If the filter contains the application domain, then we alter the application domain from the filter as the
+     * database query only work if the filter is in the proper format (Should be "Application/<role> instead of
+     * APPLICATION/<role>").
+     *
+     * @param filter raw filter.
+     * @return The filter with the altered application domain.
+     */
+    private String alterApplicationDomainFromFilter(String filter) {
+
+        String alteredApplicationFilter = filter;
+        String applicationDomainWithSeparator = APPLICATION_DOMAIN + DOMAIN_SEPARATOR;
+
+        if (filter != null && (filter.toUpperCase()).startsWith(applicationDomainWithSeparator.toUpperCase())) {
+            alteredApplicationFilter = filter.replace(applicationDomainWithSeparator.toUpperCase(),
+                    applicationDomainWithSeparator);
+        }
+
+        return alteredApplicationFilter;
     }
 
     /**
