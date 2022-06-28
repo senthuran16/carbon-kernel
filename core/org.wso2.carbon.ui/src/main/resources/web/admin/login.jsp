@@ -16,7 +16,6 @@
  under the License.
  --%>
 
-<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@page import="org.wso2.carbon.utils.CarbonUtils"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
