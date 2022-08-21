@@ -508,6 +508,17 @@ public class CacheBackedRegistry implements Registry {
                              Map<String, String> parameters)
             throws RegistryException {
         registry.invokeAspect(resourcePath, aspectName, action, parameters);
+        clearCacheEntry(resourcePath);
+    }
+
+    private void clearCacheEntry(String resourcePath) {
+        if (!registry.getRegistryContext().isNoCachePath(resourcePath)) {
+            RegistryCacheKey registryCacheKey = getRegistryCacheKey(registry, resourcePath);
+            Cache<RegistryCacheKey, GhostResource> cache = getCache(resourcePath);
+            if (cache.get(registryCacheKey) != null) {
+                cache.remove(registryCacheKey);
+            }
+        }
     }
 
     public String[] getAspectActions(String resourcePath, String aspectName)
