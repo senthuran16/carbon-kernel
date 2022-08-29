@@ -749,7 +749,9 @@
     <StatisticsReporterDisabled>true</StatisticsReporterDisabled>
 
     <!-- Enable accessing Admin Console via HTTP -->
-    <!-- EnableHTTPAdminConsole>true</EnableHTTPAdminConsole -->
+    {% if http_admin_console.enable is defined %}
+    <EnableHTTPAdminConsole>{{http_admin_console.enable}}</EnableHTTPAdminConsole>
+    {% endif %}
 
     <!--
        Default Feature Repository of WSO2 Carbon.
