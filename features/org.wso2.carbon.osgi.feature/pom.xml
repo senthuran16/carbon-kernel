@@ -34,7 +34,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.eclipse.osgi</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
@@ -78,7 +78,7 @@
             <artifactId>org.eclipse.equinox.frameworkadmin.equinox</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
+            <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.equinox.console</artifactId>
         </dependency>
         <dependency>
@@ -168,7 +168,7 @@
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.osgi</symbolicName>
-                                    <version>${equinox.osgi.version}</version>
+                                    <version>3.14.0.v20190517-1309</version> <!-- TODO introduce a property -->
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.concurrent</symbolicName>
@@ -187,12 +187,16 @@
                                     <version>${equinox.preferences.version}</version>
                                 </bundle>
                                 <bundle>
+                                    <symbolicName>org.eclipse.equinox.registry</symbolicName>
+                                    <version>${equinox.registry.version}</version>
+                                </bundle>
+                                <bundle>
                                     <symbolicName>org.eclipse.equinox.simpleconfigurator.manipulator</symbolicName>
                                     <version>${equinox.simpleconfigurator.manipulator.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.console</symbolicName>
-                                    <version>${equinox.console.version}</version>
+                                    <version>1.3.300.v20190516-1504</version> <!-- TODO introduce a property -->
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.apache.felix.gogo.command</symbolicName>
