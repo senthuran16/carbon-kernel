@@ -74,9 +74,24 @@ public class UserUniqueIDManger {
     public User getUser(String uniqueId, AbstractUserStoreManager userStoreManager)
             throws UserStoreException {
 
+        return getUser(uniqueId, userStoreManager, null);
+    }
+
+    /**
+     *
+     * @param uniqueId User's unique id.
+     * @param userStoreManager User store manager instance
+     * @param userStoreDomain User store domain of the user
+     * @return User object if user presents for the unique id. Null otherwise.
+     */
+    public User getUser(String uniqueId, AbstractUserStoreManager userStoreManager, String userStoreDomain)
+            throws UserStoreException {
+
         String userName = getFromUserNameCache(uniqueId);
         if (StringUtils.isEmpty(userName)) {
-
+            if(StringUtils.isNotEmpty(userStoreDomain)){
+                uniqueId = UserCoreUtil.addDomainToName(uniqueId, userStoreDomain);
+            }
             String[] usernames = userStoreManager.getUserList(UserCoreClaimConstants.USER_ID_CLAIM_URI, uniqueId,
                     null);
             if (usernames.length > 1) {
@@ -87,6 +102,7 @@ public class UserUniqueIDManger {
                 return null;
             }
             userName = usernames[0];
+            uniqueId = UserCoreUtil.removeDomainFromName(uniqueId);
             addToUserNameCache(uniqueId, userName);
             addToUserIDCache(uniqueId, userName);
         }
