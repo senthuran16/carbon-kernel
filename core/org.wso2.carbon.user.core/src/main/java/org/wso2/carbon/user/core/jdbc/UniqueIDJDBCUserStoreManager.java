@@ -3589,9 +3589,28 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
 
         if (!(MYSQL.equals(dbType) && totalMultiGroupFilters > 1 && totalMultiClaimFilters > 1)) {
             if (DB2.equals(dbType)) {
-                sqlBuilder.setTail(") AS p) WHERE rn BETWEEN ? AND ?", limit, offset);
+                if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
+                    // Handle multi attribute filtering without group filtering.
+                    sqlBuilder.setTail(") AS Q) AS S) AS R) AS p WHERE p.rn BETWEEN ? AND ?", limit, offset);
+                } else {
+                    sqlBuilder.setTail(") AS p) WHERE rn BETWEEN ? AND ?", limit, offset);
+                }
             } else if (MSSQL.equals(dbType)) {
-                sqlBuilder.setTail(") AS R) AS P WHERE P.RowNum BETWEEN ? AND ?", limit, offset);
+                if (isClaimFiltering && !isGroupFiltering && totalMultiClaimFilters > 1) {
+                    StringBuilder subQuery = new StringBuilder(") As Q");
+                    /*
+                     * x is used to count the number of sub queries.
+                     * (totalMultiClaimFilters * 2) --> totalMultiClaims are multiplied by 2 as 2 sub queries for
+                     * every new claim.
+                     * (totalMultiClaimFilters * 2) - 1 is deducted as there is 1 sub query in the SQL query.
+                     */
+                    for (int x = 0; x < (totalMultiClaimFilters * 2 - 1); x++) {
+                        subQuery = subQuery.append(" ) AS Q");
+                    }
+                    // Handle multi attribute filtering without group filtering.
+                    sqlBuilder.setTail(subQuery.toString()
+                            .concat(" WHERE Q.RowNum BETWEEN ? AND ?"), limit, offset);
+                }
             } else if (ORACLE.equals(dbType)) {
                 sqlBuilder.setTail(" ORDER BY UM_USER_NAME) where rownum <= ?) WHERE  rnum > ?", limit, offset);
             } else {
