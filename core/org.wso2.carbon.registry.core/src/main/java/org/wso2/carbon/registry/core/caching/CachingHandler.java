@@ -19,6 +19,8 @@ package org.wso2.carbon.registry.core.caching;
 
 import javax.cache.Cache;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.registry.api.GhostResource;
 import org.wso2.carbon.registry.core.Collection;
@@ -56,6 +58,7 @@ public class CachingHandler extends Handler {
             new HashMap<String, DataBaseConfiguration>();
     private Map<String, String> pathMap =
             new HashMap<String, String>();
+    private static Log log = LogFactory.getLog(CachingHandler.class);
     /**
      * Default Constructor
      */
@@ -265,13 +268,26 @@ public class CachingHandler extends Handler {
         }
     }
 
+    // Check if cache key associate value/ entry is null
+    private boolean isEntryNull(RegistryCacheKey cacheKey, Cache<RegistryCacheKey, GhostResource> cache) {
+        if((GhostResource<Resource>) cache.get(cacheKey) == null) {
+            log.warn("Cache entry null RegistryCacheKey in path : " + cacheKey.getPath() + ", stacktrace : " +
+                    new Throwable());
+            cache.removeAll();
+            getUUIDCache().removeAll();
+            return true;
+        }
+        return false;
+    }
+
     private boolean removeFromCache(String connectionId, int tenantId, String path, boolean doGlobalCacheInvalidation) {
         RegistryCacheKey cacheKey = RegistryUtils.buildRegistryCacheKey(connectionId, tenantId, path);
         Cache<RegistryCacheKey, GhostResource> cache = getCache(path);
         Cache<String, String> UUIDCache = getUUIDCache();
-        Resource resource;
+        Resource resource = null;
         if (cache.containsKey(cacheKey)) {
-            if((resource=((GhostResource<Resource>)cache.get(cacheKey)).getResource())!=null) {
+            if(!isEntryNull(cacheKey, cache) &&
+                    (resource=((GhostResource<Resource>)cache.get(cacheKey)).getResource())!=null) {
                 String UUIDCacheKey = resource.getUUID();
                 UUIDCache.remove(UUIDCacheKey);
             }
