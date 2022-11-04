@@ -272,7 +272,7 @@ public class CachingHandler extends Handler {
     private boolean isEntryNull(RegistryCacheKey cacheKey, Cache<RegistryCacheKey, GhostResource> cache) {
         if((GhostResource<Resource>) cache.get(cacheKey) == null) {
             log.warn("Cache entry is null for RegistryCacheKey in path : " + cacheKey.getPath() +
-                    ", stacktrace : " + new Throwable());
+                    ", stacktrace : ", new Throwable());
             cache.removeAll();
             getUUIDCache().removeAll();
             return true;
@@ -286,6 +286,7 @@ public class CachingHandler extends Handler {
         Cache<String, String> UUIDCache = getUUIDCache();
         Resource resource = null;
         if (cache.containsKey(cacheKey)) {
+
             if(!isEntryNull(cacheKey, cache) &&
                     (resource = ((GhostResource<Resource>)cache.get(cacheKey)).getResource()) != null) {
                 String UUIDCacheKey = resource.getUUID();
