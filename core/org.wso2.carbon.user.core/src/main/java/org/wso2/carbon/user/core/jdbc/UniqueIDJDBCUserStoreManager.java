@@ -2323,27 +2323,33 @@ public class UniqueIDJDBCUserStoreManager extends JDBCUserStoreManager {
                 prepStmt.setInt(5, tenantId);
             }
 
+            String searchTimeRawValue = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME);
             int searchTime;
+            String maxItemLimitRawValue = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST);
             int maxItemLimit;
-            try {
-                maxItemLimit = Integer.parseInt(realmConfig
-                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
-            } catch (NumberFormatException e) {
+
+            if (StringUtils.isNotEmpty(maxItemLimitRawValue) && StringUtils.isNumeric(maxItemLimitRawValue)) {
+                maxItemLimit = Integer.parseInt(maxItemLimitRawValue);
+            } else {
+                // The user store property might not be configured. Therefore, logging as debug.
                 if (log.isDebugEnabled()) {
                     log.debug("Unable to get the " + UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST +
                             " from the realm configuration. The default value: " +
-                            UserCoreConstants.MAX_USER_ROLE_LIST + " is used instead.", e);
+                            UserCoreConstants.MAX_USER_ROLE_LIST + " is used instead.");
                 }
                 maxItemLimit = UserCoreConstants.MAX_USER_ROLE_LIST;
             }
-            try {
-                searchTime = Integer.parseInt(realmConfig
-                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
-            } catch (NumberFormatException e) {
+
+            if (StringUtils.isNotEmpty(searchTimeRawValue) && StringUtils.isNumeric(searchTimeRawValue)) {
+                searchTime = Integer.parseInt(searchTimeRawValue);
+            } else {
+                // The user store property might not be configured. Therefore, logging as debug.
                 if (log.isDebugEnabled()) {
                     log.debug("Unable to get the " + UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME +
                             " from the realm configuration. The default value: " + UserCoreConstants.MAX_SEARCH_TIME +
-                            " is used instead.", e);
+                            " is used instead.");
                 }
                 searchTime = UserCoreConstants.MAX_SEARCH_TIME;
             }
