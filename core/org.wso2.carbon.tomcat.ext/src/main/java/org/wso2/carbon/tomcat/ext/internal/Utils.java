@@ -104,14 +104,15 @@ public class Utils {
             temp = uri.substring(uri.indexOf(JAX_APP_PATTERN) + 12);
         } else {
             //if ST request getting the appName from the context
-            if (request.getContext() == null) {
-                return null;
-            }
-            appName = request.getContext().getName();
-            if ("".equals(appName)) {
-                return appName;
-            } else if(!appName.equals("/")) {
-                return appName.substring(1);
+            if (request.getContext() != null) {
+                appName = request.getContext().getName();
+                if ("".equals(appName)) {
+                    return appName;
+                } else if (!appName.equals("/")) {
+                    return appName.substring(1);
+                } else {
+                    return null;
+                }
             } else {
                 return null;
             }
