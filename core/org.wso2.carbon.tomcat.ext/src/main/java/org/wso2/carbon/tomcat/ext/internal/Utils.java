@@ -103,12 +103,16 @@ public class Utils {
             //if the request from jaxapps, getting appName from uri
             temp = uri.substring(uri.indexOf(JAX_APP_PATTERN) + 12);
         } else {
-            //if ST request getting the appName from the contex
-            appName = request.getContext().getName();
-            if ("".equals(appName)) {
-                return appName;
-            } else if(!appName.equals("/")) {
-                return appName.substring(1);
+            //if ST request getting the appName from the context
+            if (request.getContext() != null) {
+                appName = request.getContext().getName();
+                if ("".equals(appName)) {
+                    return appName;
+                } else if (!appName.equals("/")) {
+                    return appName.substring(1);
+                } else {
+                    return null;
+                }
             } else {
                 return null;
             }
