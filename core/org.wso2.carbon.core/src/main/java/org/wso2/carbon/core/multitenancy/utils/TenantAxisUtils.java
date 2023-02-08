@@ -514,13 +514,15 @@ public final class TenantAxisUtils {
                 getTenantConfigurationContexts(mainServerConfigContext);
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         log.info("Starting to clean tenant : " +tenantDomain);
+        long tenantCleaningStartTime = System.currentTimeMillis();
         tenantCfgCtx.getAxisConfiguration().getConfigurator().cleanup();
         try {
             doPreConfigContextTermination(tenantCfgCtx);
             tenantCfgCtx.terminate();
             doPostConfigContextTermination(tenantCfgCtx);
             tenantConfigContexts.remove(tenantDomain);
-            log.info("Cleaned up tenant " + tenantDomain);
+            log.info("Cleaned up tenant : " + tenantDomain + " in " +
+                    (System.currentTimeMillis() - tenantCleaningStartTime) + "ms");
         } catch (AxisFault e) {
             log.error("Cannot cleanup ConfigurationContext of tenant " + tenantDomain, e);
         }
