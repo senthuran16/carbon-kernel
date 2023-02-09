@@ -2742,6 +2742,11 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
             extractedDomain = names[0].trim();
         }
 
+        // Extracting the domain using user id.
+        if (extractedDomain == null && claim.equals(UserCoreClaimConstants.USER_ID_CLAIM_URI)) {
+            extractedDomain = getDomainWithUserID(claimValue);
+        }
+
         UserStoreManager userManager = this;
         if (StringUtils.isNotEmpty(extractedDomain) && !StringUtils.equalsIgnoreCase(getMyDomainName(), extractedDomain)) {
             UserStoreManager secondaryUserStoreManager = getSecondaryUserStoreManager(extractedDomain);
@@ -15423,5 +15428,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         String errorCode = ErrorMessages.ERROR_CODE_NON_EXISTING_USER.getCode();
         handleGetUserClaimValuesFailure(errorCode, errorMessage, userName, null, profileName);
         throw new UserStoreException(errorCode + " - " + errorMessage);
+    }
+
+    private String getDomainWithUserID(String claimValue) throws UserStoreException {
+
+        UserStore userStore = getUserStoreWithID(claimValue);
+        String domain = null;
+        if (userStore != null && StringUtils.isNotBlank(userStore.getDomainName())) {
+            domain = userStore.getDomainName();
+        }
+        return domain;
     }
 }
