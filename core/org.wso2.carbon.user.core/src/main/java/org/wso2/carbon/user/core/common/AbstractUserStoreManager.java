@@ -15431,9 +15431,15 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         throw new UserStoreException(errorCode + " - " + errorMessage);
     }
 
-    private String getDomainWithUserID(String claimValue) throws UserStoreException {
+    /**
+     * Get the domain name using the user ID.
+     *
+     * @param userId                User ID.
+     * @throws UserStoreException   Exception when the user does not exist.
+     */
+    private String getDomainWithUserID(String userId) throws UserStoreException {
 
-        UserStore userStore = getUserStoreWithID(claimValue);
+        UserStore userStore = getUserStoreWithID(userId);
         String domain = null;
         if (userStore != null && StringUtils.isNotBlank(userStore.getDomainName())) {
             domain = userStore.getDomainName();
