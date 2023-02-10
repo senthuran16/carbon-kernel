@@ -2743,8 +2743,7 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
         }
 
         // Extracting the domain using user id.
-        if (StringUtils.isBlank(extractedDomain) &&
-                StringUtils.equals(claim, UserCoreClaimConstants.USER_ID_CLAIM_URI)) {
+        if (StringUtils.isBlank(extractedDomain) && UserCoreClaimConstants.USER_ID_CLAIM_URI.equalsIgnoreCase(claim)) {
             extractedDomain = getDomainWithUserID(claimValue);
         }
 
@@ -15434,8 +15433,8 @@ public abstract class AbstractUserStoreManager implements PaginatedUserStoreMana
     /**
      * Get the domain name using the user ID.
      *
-     * @param userId                User ID.
-     * @throws UserStoreException   Exception when the user does not exist.
+     * @param userId User ID.
+     * @throws UserStoreException Exception when the user does not exist.
      */
     private String getDomainWithUserID(String userId) throws UserStoreException {
 
